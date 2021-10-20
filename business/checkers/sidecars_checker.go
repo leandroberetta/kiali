@@ -18,6 +18,7 @@ type SidecarChecker struct {
 	ServiceEntries []networking_v1alpha3.ServiceEntry
 	Services       []core_v1.Service
 	Namespaces     models.Namespaces
+	RootNamespace  string
 	WorkloadList   models.WorkloadList
 }
 
@@ -65,7 +66,7 @@ func (s SidecarChecker) runChecks(sidecar networking_v1alpha3.Sidecar) models.Is
 	enabledCheckers := []Checker{
 		common.WorkloadSelectorNoWorkloadFoundChecker(SidecarCheckerType, selectorLabels, s.WorkloadList),
 		sidecars.EgressHostChecker{Sidecar: sidecar, Services: s.Services, ServiceEntries: serviceHosts},
-		sidecars.GlobalChecker{Sidecar: sidecar},
+		sidecars.GlobalChecker{RootNamespace: s.RootNamespace, Sidecar: sidecar},
 	}
 
 	for _, checker := range enabledCheckers {
