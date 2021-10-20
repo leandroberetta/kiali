@@ -575,11 +575,7 @@ func (in *MeshService) GetMeshConfig() (*MeshConfig, error) {
 func (in *MeshService) GetRootNamespace() string {
 	meshConfig, err := in.GetMeshConfig()
 
-<<<<<<< HEAD
 	if err == nil && meshConfig.RootNamespace != "" {
-=======
-	if err != nil && meshConfig.RootNamespace != "" {
->>>>>>> f6a33d6e (new helpers to get the root namespace)
 		return meshConfig.RootNamespace
 	}
 	return config.Get().IstioNamespace
