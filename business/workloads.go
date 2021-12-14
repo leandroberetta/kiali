@@ -88,6 +88,8 @@ func (in *WorkloadService) getWorkloadValidations(authpolicies []security_v1beta
 		WorkloadList:          workloads,
 	}.Check()
 
+	validations.StripIgnoredChecks()
+
 	return validations
 }
 
