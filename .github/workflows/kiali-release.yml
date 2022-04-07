@@ -1,0 +1,96 @@
+name: Kiali Release
+
+on:
+  push
+
+jobs:
+  initialize:
+    name: Initialize
+    runs-on: ubuntu-latest
+    outputs:
+      target_branch: ${{ steps.target_branch.outputs.target_branch }}
+      #release_type: ${{ steps.release_type.outputs.release_type }}
+      release_type: minor      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      # The initialize job gathers variables for later use in jobs.
+      # We are using this technique rather environment variables because at the moment, they won't work with reusable jobs.
+      # A positive side effect of this is that we can print all variables at start for debugging and troubleshooting.
+      - id: target_branch
+        run: echo "::set-output name=target_branch::${{ github.base_ref || github.ref_name }}"        
+      - name: Determine release type
+        id: release_type
+        run: echo "::set-output name=release_type::$(./.github/workflows/util/release_type.sh)"      
+  # build_backend:
+  #   name: Build backend
+  #   uses: ./.github/workflows/build-backend.yml
+  #   needs: [initialize]
+  # build_frontend:
+  #   name: Build frontend
+  #   uses: ./.github/workflows/build-frontend.yml
+  #   needs: [initialize]
+  #   with:
+  #     target_branch: ${{needs.initialize.outputs.target_branch}}
+#  integration_tests_backend:
+#    name: Run backend integration tests
+#    uses: ./.github/workflows/integration-tests-backend.yml
+#    needs: [initialize, build_backend, build_frontend]
+#    with:
+#      target_branch: ${{needs.initialize.outputs.target-branch}}
+#  integration_tests_frontend:
+#    name: Run frontend integration tests
+#    uses: ./.github/workflows/integration-tests-frontend.yml
+#    needs: [initialize, build_backend, build_frontend]
+#    with:
+#      target_branch: ${{needs.initialize.outputs.target-branch}}
+  release_kiali:
+    name: Release Kiali
+    runs-on: ubuntu-20.04
+    needs: [initialize]
+    env:
+      RELEASE_TYPE: ${{ needs.initialize.outputs.release_type}}        
+    steps:    
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Install required software        
+        run: sudo apt-get install -y node-semver
+      
+      # - name: Set up Go
+      #   uses: actions/setup-go@v2
+      #   with:
+      #     go-version: 1.17.7
+
+      # - name: Cache Go deps
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: |
+      #       ~/.cache/go-build
+      #       ~/go/pkg/mod
+      #     key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-go-
+
+      # - name: Download frontend build
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: build
+      #     path: frontend/build       
+
+      - name: Build backend for release (Multi-arch)      
+        run: make -f ./.github/workflows/util/Makefile backend-build-release
+
+      # - name: Push Kiali to Quay
+      #   env:
+      #     QUAY_USER: ${{ secrets.QUAY_USER }}
+      #     QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+      #   run: make -f ./.github/workflows/util/Makefile backend-push-docker     
+
+      - name: Configure Git
+        run: git config user.email 'lea.beretta@gmail.com' && git config user.name 'leandroberetta'
+
+      - name: Create release cut
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: make -f ./.github/workflows/util/Makefile backend-push-version-tag backend-prepare-next-version

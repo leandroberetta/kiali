@@ -1,14 +1,16 @@
 # This Makefile is used to automate Kaili releases.
 # Please, see documentation in RELEASING.adoc
 
+SEMVER ?= './.github/workflows/util/semver'
+
 RELEASE_TYPE ?= 'minor'
 CONSOLE_LOCAL_DIR ?= ./frontend
 
-BACKEND_VERSION ?= $(shell sed -rn 's/^VERSION \?= v(.*)/\1/p' Makefile)
+BACKEND_VERSION ?= $(shell sed -rn 's/^VERSION \?= v(.*)/\1/p' Makefile | xargs)
 
 # Take the version as-is without filtering out the 'v' (if it exists)
 # This will take 'latest' as is or vX.Y.Z-type.
-VERSION_TAG ?= $(shell sed -rn 's/^VERSION \?= (.*)/\1/p' Makefile)
+VERSION_TAG ?= $(shell sed -rn 's/^VERSION \?= (.*)/\1/p' Makefile | xargs)
 
 # Determine what's the version to release, according to the RELEASE_TYPE
 # NOTE: BACKEND_VERSION_TO_RELEASE variable will only be used to update the main Makefile
@@ -18,11 +20,11 @@ VERSION_TAG ?= $(shell sed -rn 's/^VERSION \?= (.*)/\1/p' Makefile)
 ifeq ($(RELEASE_TYPE),patch)
   # For patch, bump the version that is present in Makefile. This will be the
   # version string to use for the release.
-  BACKEND_VERSION_TO_RELEASE ?= v$(shell semver bump $(RELEASE_TYPE) $(BACKEND_VERSION))
+  BACKEND_VERSION_TO_RELEASE ?= v$(shell $(SEMVER) bump $(RELEASE_TYPE) $(BACKEND_VERSION))
 endif
 ifeq ($(findstring $(RELEASE_TYPE),major minor),$(RELEASE_TYPE))
   # For major and minor, remove the -SNAPSHOT suffix from the Makefile
-  BACKEND_VERSION_TO_RELEASE ?= v$(shell semver bump release $(BACKEND_VERSION))
+  BACKEND_VERSION_TO_RELEASE ?= v$(shell $(SEMVER) bump release $(BACKEND_VERSION))
 endif
 
 ifeq ($(findstring snapshot,$(RELEASE_TYPE)),snapshot)
@@ -36,28 +38,28 @@ endif
 ifeq ($(findstring snapshot,$(RELEASE_TYPE)),snapshot)
   # For end-of-week snapshot release, substitute the -SNAPSHOT prefix in the Makefile with
   # the value of $(RELEASE_TYPE) -- assuming value will be snapshot.{X}
-  BACKEND_VERSION_TO_RELEASE ?= v$(shell semver bump prerel $(RELEASE_TYPE) $(BACKEND_VERSION))
+  BACKEND_VERSION_TO_RELEASE ?= v$(shell $(SEMVER) bump prerel $(RELEASE_TYPE) $(BACKEND_VERSION))  
 else ifeq ($(RELEASE_TYPE),edge)
   # Use 'latest' for edge releases
   BACKEND_VERSION_TO_RELEASE ?= latest
 endif
 
 ifeq ($(RELEASE_TYPE),edge)
-  # Avoid semver error, as BACKEND_VERSION will return empty string when using 'latest' as the version
-  # By not setting these variable, we avoid a semver error when expanding a rule that uses $(BACKEND_BUMPED_VERSION)
+  # Avoid $(SEMVER) error, as BACKEND_VERSION will return empty string when using 'latest' as the version
+  # By not setting these variable, we avoid a $(SEMVER) error when expanding a rule that uses $(BACKEND_BUMPED_VERSION)
 else
   # NOTE: The value fo BACKEND_BUMPED_VERSION and BACKEND_VERSION_BRANCH will only be valid
   # after the main Makefile has been modified with the version being released.
-  BACKEND_BUMPED_VERSION ?= $(shell semver bump minor $(BACKEND_VERSION))
-  BACKEND_VERSION_BRANCH ?= $(shell semver bump release $(BACKEND_VERSION) | sed 's/\.[[:digit:]]\+$$//')
+  BACKEND_BUMPED_VERSION ?= $(shell $(SEMVER) bump minor $(BACKEND_VERSION))
+  BACKEND_VERSION_BRANCH ?= $(shell $(SEMVER) bump release $(BACKEND_VERSION) | sed 's/\.[[:digit:]]\+$$//')
 endif
 
-BACKEND_GITHUB_URI ?= git@github.com:kiali/kiali.git
-BACKEND_PULL_URI ?= https://api.github.com/repos/kiali/kiali/pulls
+BACKEND_GITHUB_URI ?= https://github.com/leandroberetta/kiali.git
+BACKEND_PULL_URI ?= https://api.github.com/repos/leandroberetta/kiali/pulls
 BACKEND_RELEASE_URI = $(subst pulls,releases,$(BACKEND_PULL_URI))
 BACKEND_MAIN_BRANCH ?= master
 
-KIALI_BOT_USER ?= kiali-bot
+KIALI_BOT_USER ?= leandroberetta
 BACKEND_FORK_URI ?= $(shell git config --get remote.origin.url)
 
 # BUILD_TAG is an environment variable from Jenkins
@@ -78,34 +80,6 @@ ifneq ($(RELEASE_TYPE),edge)
   PUSH_GITHUB_TAG = y
 endif
 
-# JENKINS_URL is an environment variable that is set when this
-# Makefile is run under a Jenkins Pipeline.
-ifdef JENKINS_URL
-
-# There is the chance that the UI won't be
-# released, because only the back-end suffered changes.
-# If UI is not being released, use the CONSOLE_VERSION present in
-# the main Makefile (or use the received one)
-ifeq ($(SKIP_UI_RELEASE),y)
-ifneq ($(UI_VERSION),)
-  CONSOLE_VERSION = $(UI_VERSION)
-else
-  CONSOLE_VERSION ?= $(shell sed -rn 's/^CONSOLE_VERSION \?= (.*)/\1/p' Makefile)
-endif
-else
-  # Let's set CONSOLE_VERSION to "local", since the UI will also be
-  # built an released.
-  CONSOLE_VERSION ?= local
-endif # if skip_ui_release
-
-else # if Jenkins
-  # If this Makefile is not being run in Jenkins, assume that
-  # the back-end and the UI are being released separately.
-  # So, set CONSOLE_VERSION to "latest" (the default of the Makefile)
-  # to fetch the console from NPM.
-  CONSOLE_VERSION ?= latest
-endif # If Jenkins
-
 .PHONY: backend-build-release backend-test backend-push-docker
 .PHONY: backend-push-version-tag backend-prepare-next-version
 .PHONY: backend-prepare-next-patch-version backend-prepare-master-next-version
@@ -121,7 +95,9 @@ all:
 backend-build-release:
 	@echo "Will build version: $(BACKEND_VERSION_TO_RELEASE)"
 	sed -i -r 's/^VERSION \?= v.*/VERSION \?= $(BACKEND_VERSION_TO_RELEASE)/' Makefile
+	git status
 	$(MAKE) clean build
+	sed -rn 's/^VERSION \\?= v(.*)/v\\1/p' Makefile
 
 backend-test:
 	$(MAKE) test-race
@@ -148,13 +124,17 @@ endif
 
 backend-push-version-tag:
 ifeq ($(PUSH_GITHUB_TAG),y)
-	sed -i "s/^CONSOLE_VERSION ?=.*/CONSOLE_VERSION ?= $$(cat _output/docker/console/version.txt)/" Makefile
+	echo $(BACKEND_FORK_URI)
+	echo $(RELEASE_TYPE)
+	git status	
 	git add Makefile
 	git commit -m "Release $(BACKEND_VERSION)"
 	git push $(BACKEND_GITHUB_URI) $$(git rev-parse HEAD):refs/tags/$(VERSION_TAG)
 ifdef GH_TOKEN
 	@echo "Creating GitHub release..."
 ifeq ($(IS_SNAPSHOT),y)
+	echo $(VERSION_TAG)
+	@echo '{"name": "Kiali $(BACKEND_VERSION)", "tag_name": "$(VERSION_TAG)", "prerelease": true}'
 	@curl -H "Authorization: token $(GH_TOKEN)" \
 	  -H "Content-Type: application/json" \
 	  -d '{"name": "Kiali $(BACKEND_VERSION)", "tag_name": "$(VERSION_TAG)", "prerelease": true}' \
