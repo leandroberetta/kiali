@@ -1,0 +1,117 @@
+name: Kiali Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release Type'     
+        required: true
+        default: 'auto' 
+        type: choice
+        options:
+        - auto
+        - minor
+        - snapshot.0
+        - snpashot.1
+        - edge 
+      backend_repo:
+        description: 'The GitHub repo of the back-end sources, in owner/repo format'
+        required: true
+        default: leandroberetta/kiali 
+        type: string
+      quay_name:
+        description: 'The name of the Quay repository to push the release'        
+        type: string
+        default: quay.io/leandroberetta/kiali
+        required: true 
+
+jobs:
+  initialize:
+    name: Initialize
+    runs-on: ubuntu-latest
+    outputs:
+      target_branch: ${{ steps.target_branch.outputs.target_branch }}
+      release_type: ${{ steps.release_type.outputs.release_type || 'auto' }}      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      # The initialize job gathers variables for later use in jobs.
+      # We are using this technique rather environment variables because at the moment, they won't work with reusable jobs.
+      # A positive side effect of this is that we can print all variables at start for debugging and troubleshooting.
+      - id: target_branch
+        run: echo "::set-output name=target_branch::${{ github.base_ref || github.ref_name }}"        
+      - name: Determine release type
+        id: release_type
+        if: ${{ github.event.inputs.release_type == 'auto'}}
+        run: echo "::set-output name=release_type::$(./.github/workflows/util/release_type.sh)"
+  build_backend:
+    name: Build backend
+    uses: ./.github/workflows/build-backend.yml
+    needs: [initialize]
+  build_frontend:
+    name: Build frontend
+    uses: ./.github/workflows/build-frontend.yml
+    needs: [initialize]
+    with:
+      target_branch: ${{needs.initialize.outputs.target_branch}}
+  integration_tests_backend:
+    name: Run backend integration tests
+    uses: ./.github/workflows/integration-tests-backend.yml
+    needs: [initialize, build_backend, build_frontend]
+    with:
+      target_branch: ${{needs.initialize.outputs.target_branch}}
+  integration_tests_frontend:
+    name: Run frontend integration tests
+    uses: ./.github/workflows/integration-tests-frontend.yml
+    needs: [initialize, build_backend, build_frontend]
+    with:
+      target_branch: ${{needs.initialize.outputs.target_branch}}
+  release_kiali:
+    name: Release Kiali
+    runs-on: ubuntu-20.04
+    needs: [initialize, build_backend, build_frontend, integration_tests_backend, integration_tests_frontend]
+    env:
+      RELEASE_TYPE: ${{ needs.initialize.outputs.release_type}}        
+      BACKEND_REPO: ${{ github.event.inputs.backend_repo }}
+      QUAY_NAME: ${{ github.event.inputs.quay_name }}
+    steps:    
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17.7
+
+      - name: Cache Go deps
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Download frontend build
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+          path: frontend/build       
+
+      - name: Build backend for release (Multi-arch)      
+        run: make -f ./.github/workflows/util/Makefile backend-build-release
+
+      - name: Push Kiali to Quay
+        env:
+          QUAY_USER: ${{ secrets.QUAY_USER }}
+          QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+        run: make -f ./.github/workflows/util/Makefile backend-push-docker     
+
+      - name: Configure Git
+        run: git config user.email 'lea.beretta@gmail.com' && git config user.name 'leandroberetta'
+
+      - name: Create release cut
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: make -f ./.github/workflows/util/Makefile backend-push-version-tag backend-prepare-next-version
