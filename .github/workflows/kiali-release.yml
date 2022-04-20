@@ -31,18 +31,18 @@ jobs:
     needs: [initialize]
     with:
       target_branch: ${{needs.initialize.outputs.target_branch}}
- integration_tests_backend:
-   name: Run backend integration tests
-   uses: ./.github/workflows/integration-tests-backend.yml
-   needs: [initialize, build_backend, build_frontend]
-   with:
-     target_branch: ${{needs.initialize.outputs.target_branch}}
- integration_tests_frontend:
-   name: Run frontend integration tests
-   uses: ./.github/workflows/integration-tests-frontend.yml
-   needs: [initialize, build_backend, build_frontend]
-   with:
-     target_branch: ${{needs.initialize.outputs.target_branch}}
+  integration_tests_backend:
+    name: Run backend integration tests
+    uses: ./.github/workflows/integration-tests-backend.yml
+    needs: [initialize, build_backend, build_frontend]
+    with:
+      target_branch: ${{needs.initialize.outputs.target_branch}}
+  integration_tests_frontend:
+    name: Run frontend integration tests
+    uses: ./.github/workflows/integration-tests-frontend.yml
+    needs: [initialize, build_backend, build_frontend]
+    with:
+      target_branch: ${{needs.initialize.outputs.target_branch}}
   release_kiali:
     name: Release Kiali
     runs-on: ubuntu-20.04
