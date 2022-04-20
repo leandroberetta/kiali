@@ -54,8 +54,8 @@ else
   BACKEND_VERSION_BRANCH ?= $(shell $(SEMVER) bump release $(BACKEND_VERSION) | sed 's/\.[[:digit:]]\+$$//')
 endif
 
-BACKEND_GITHUB_URI ?= https://github.com/leandroberetta/kiali.git
-BACKEND_PULL_URI ?= https://api.github.com/repos/leandroberetta/kiali/pulls
+BACKEND_GITHUB_URI ?= https://github.com/$(BACKEND_REPO).git
+BACKEND_PULL_URI ?= https://api.github.com/repos/$(BACKEND_REPO)/pulls
 BACKEND_RELEASE_URI = $(subst pulls,releases,$(BACKEND_PULL_URI))
 BACKEND_MAIN_BRANCH ?= master
 
@@ -65,8 +65,6 @@ BACKEND_FORK_URI ?= $(shell git config --get remote.origin.url)
 # BUILD_TAG is an environment variable from Jenkins
 BUILD_TAG ?= prepare-next-version
 BUMP_BRANCH_ID ?= $(BUILD_TAG)
-
-QUAY_NAME ?= quay.io/leandroberetta/kiali
 
 ifeq ($(RELEASE_TYPE_IS_SNAPSHOT_OR_EDGE),y)
   IS_SNAPSHOT ?= y
