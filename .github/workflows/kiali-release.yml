@@ -46,7 +46,7 @@ jobs:
   release_kiali:
     name: Release Kiali
     runs-on: ubuntu-20.04
-    needs: [initialize]
+    needs: [initialize, build_backend, build_frontend, integration_tests_backend, integration_tests_frontend]
     env:
       RELEASE_TYPE: ${{ needs.initialize.outputs.release_type}}        
     steps:    
