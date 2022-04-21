@@ -26,6 +26,8 @@ on:
         required: true 
 
 jobs:
+  # The initialize job gathers variables for later use in jobs.
+  # We are using this technique rather environment variables because at the moment, they won't work with reusable jobs.  
   initialize:
     name: Initialize
     runs-on: ubuntu-latest
@@ -35,9 +37,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      # The initialize job gathers variables for later use in jobs.
-      # We are using this technique rather environment variables because at the moment, they won't work with reusable jobs.
-      # A positive side effect of this is that we can print all variables at start for debugging and troubleshooting.
+      
       - id: target_branch
         run: echo "::set-output name=target_branch::${{ github.base_ref || github.ref_name }}"        
       - name: Determine release type
