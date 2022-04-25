@@ -1,0 +1,213 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type'     
+        required: true
+        default: 'auto' 
+        type: choice
+        options:
+          - auto
+          - minor
+          - snapshot.0
+          - snpashot.1
+          - edge 
+      repository:
+        description: Repository (in owner/repo format)
+        required: true
+        default: leandroberetta/kiali 
+        type: string
+      releasing_branch:
+        description: Branch to release
+        required: true
+        default: master
+        type: string
+      quay_repository:
+        description: Quay repository
+        type: string
+        default: quay.io/leandroberetta/kiali
+        required: true 
+
+jobs:
+  initialize:
+    name: Initialize
+    runs-on: ubuntu-20.04
+    outputs:
+      target_branch: ${{ github.base_ref || github.ref_name }}
+      release_type: ${{ steps.release_type.outputs.release_type || github.event.inputs.release_type }}
+      current_version: ${{ steps.current_version.outputs.current_version }}
+      releasing_version: ${{ steps.releasing_version.outputs.releasing_version }}
+      branch_version: v${{ steps.version_branch.outputs.version_branch }}
+      next_version: ${{ steps.next_version.outputs.next_version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Determine release type
+        id: release_type        
+        run: |
+          if [[ github.event.inputs.release_type == 'auto' ]];
+          then
+            echo "::set-output name=release_type::$(./.github/workflows/util/release_type.sh)"
+          else
+            echo "::set-output name=release_type::${{ github.event.inputs.release_type }}"
+          fi
+      - name: Determine current version
+        id: current_version
+        run: |
+          RAW_VERSION=$(sed -rn 's/^VERSION \?= v(.*)/\1/p' Makefile)
+          
+          VERSION=$(./.github/workflows/util/semver bump release $RAW_VERSION)
+          
+          echo "::set-output name=current_version::$VERSION"      
+      - name: Determine releasing version
+        env:
+          RELEASE_TYPE: ${{ steps.release_type.outputs.release_type }}
+        id: releasing_version
+        run: echo "::set-output name=releasing_version::$(./.github/workflows/util/releasing_version.sh)"
+      
+      - name: Determine version branch
+        id: version_branch
+        run: echo "::set-output name=version_branch::$(./.github/workflows/util/semver bump release ${{ steps.current_version.outputs.current_version }} | sed 's/\.[0-9]*\+$//')"
+      
+      - name: Determine next version
+        id: next_version
+        run: echo "::set-output name=next_version::$(./.github/workflows/util/semver bump minor ${{ steps.current_version.outputs.current_version }})"
+      
+      - name: Log information
+        run: |
+          echo "Release type: ${{ steps.release_type.outputs.release_type }}"
+          
+          echo "Build version: ${{ steps.current_version.outputs.current_version }}"
+          
+          echo "Releasing version: ${{ steps.releasing_version.outputs.releasing_version }}"
+          
+          echo "Branch version: ${{ steps.version_branch.outputs.version_branch }}"
+          
+          echo "Next version: ${{ steps.next_version.outputs.next_version }}" 
+  
+  build_backend:
+    name: Build backend
+    uses: ./.github/workflows/build-backend.yml
+    needs: [initialize]
+  
+  build_frontend:
+    name: Build frontend
+    uses: ./.github/workflows/build-frontend.yml
+    needs: [initialize]
+    with:
+      target_branch: ${{needs.initialize.outputs.target_branch}}
+  
+  integration_tests_backend:
+    name: Run backend integration tests
+    uses: ./.github/workflows/integration-tests-backend.yml
+    needs: [initialize, build_backend, build_frontend]
+    with:
+      target_branch: ${{needs.initialize.outputs.target_branch}}
+  
+  integration_tests_frontend:
+    name: Run frontend integration tests
+    uses: ./.github/workflows/integration-tests-frontend.yml
+    needs: [initialize, build_backend, build_frontend]
+    with:
+      target_branch: ${{needs.initialize.outputs.target_branch}}
+  
+  release:
+    name: Release
+    runs-on: ubuntu-20.04
+    needs: [initialize, build_backend, build_frontend, integration_tests_backend, integration_tests_frontend]
+    env:
+      RELEASE_TYPE: ${{ needs.initialize.outputs.release_type }}
+      CURRENT_VERSION: ${{ needs.initialize.outputs.current_version }}
+      RELEASING_VERSION: ${{ needs.initialize.outputs.releasing_version }}
+      BRANCH_VERSION: ${{ needs.initialize.outputs.branch_version }}
+      NEXT_VERSION: ${{ needs.initialize.outputs.next_version }}
+      QUAY_NAME: ${{ github.event.inputs.quay_repository }}
+      QUAY_TAG: ${{ github.event.inputs.quay_repository }}:${{ needs.initialize.outputs.releasing_version }}
+      RELEASING_BRANCH: ${{ github.event.inputs.releasing_branch }}
+      PULL_URI: https://api.github.com/repos/${{ github.event.inputs.repository }}/pulls
+      RELEASE_URI: https://api.github.com/repos/${{ github.event.inputs.repository }}/releases
+    steps:    
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Set version to release
+        run: sed -i -r 's/^VERSION \?= v.*/VERSION \?= ${{ needs.initialize.outputs.current_version }}/' Makefile        
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17.7
+
+      - name: Cache Go deps
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Download frontend build
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+          path: frontend/build       
+
+      - name: Build image     
+        run: make clean build 
+
+      - name: Push image
+        run: |
+          docker login -u ${{ secrets.QUAY_USER }} -p ${{ secrets.QUAY_PASSWORD }} quay.io
+        
+          make -e DOCKER_CLI_EXPERIMENTAL=enabled build-linux-multi-arch container-multi-arch-push-kiali-quay
+
+      - name: Configure git
+        run: |
+          git config user.email 'lea.beretta@gmail.com'
+        
+          git config user.name 'leandroberetta'
+
+      - name: Create tag 
+        if: ${{ needs.initialize.outputs.release_type != 'edge' }}
+        run: |
+          git add Makefile
+        
+          git commit -m "Release $RELEASING_VERSION"
+        
+          git push origin $(git rev-parse HEAD):refs/tags/$RELEASING_VERSION
+        
+      - name: Create release
+        run: |
+          if [[ $RELEASE_TYPE == *"snapshot"* ]]; then export PRERELEASE="true"; else export PRERELEASE="false"; fi
+
+          curl -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"name\": \"Kiali Operator $RELEASING_VERSION\", \"tag_name\": \"$RELEASING_VERSION\", \"prerelease\": $PRERELEASE}" \
+            -X POST $RELEASE_URI        
+
+      - name: Create or update version branch      
+        if: ${{ needs.initialize.outputs.release_type != 'edge' && !contains(needs.initialize.outputs.release_type, 'snapshot') }}
+        run: git push origin $(git rev-parse HEAD):refs/heads/$BRANCH_VERSION
+
+      - name: Create a PR to prepare for next version
+        env:
+          BUILD_TAG: kiali-release-${{ github.run_number }}-main
+        if: ${{ needs.initialize.outputs.release_type == 'minor' }}
+        run: |
+          sed -i -r "s/^VERSION \?= (.*)/VERSION \?= v$NEXT_VERSION-SNAPSHOT/" Makefile
+          
+          git add Makefile
+          
+          git commit -m "Prepare for next version"
+          
+          git push origin $(git rev-parse HEAD):refs/heads/$BUILD_TAG
+          
+          curl -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"title\": \"Prepare for next version\", \"body\": \"Please, merge to update version numbers and prepare for release $NEXT_VERSION.\", \"head\": \"leandroberetta:$BUILD_TAG\", \"base\": \"$RELEASING_BRANCH\"}" \
+            -X POST $PULL_URI      
