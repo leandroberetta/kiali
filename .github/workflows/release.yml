@@ -134,7 +134,10 @@ jobs:
       RELEASE_URI: https://api.github.com/repos/${{ github.event.inputs.repository }}/releases
     steps:    
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.event.inputs.repository }}
+          ref: ${{ github.event.inputs.releasing_branch }} 
       
       - name: Set version to release
         run: sed -i -r 's/^VERSION \?= v.*/VERSION \?= ${{ needs.initialize.outputs.current_version }}/' Makefile        
