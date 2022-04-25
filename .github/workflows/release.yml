@@ -17,7 +17,7 @@ on:
       repository:
         description: Repository (in owner/repo format)
         required: true
-        default: leandroberetta/kiali 
+        default: kiali/kiali 
         type: string
       releasing_branch:
         description: Branch to release
@@ -27,7 +27,7 @@ on:
       quay_repository:
         description: Quay repository
         type: string
-        default: quay.io/leandroberetta/kiali
+        default: quay.io/kiali/kiali
         required: true 
 
 jobs:
@@ -168,9 +168,9 @@ jobs:
 
       - name: Configure git
         run: |
-          git config user.email 'lea.beretta@gmail.com'
+          git config user.email 'kiali-dev@googlegroups.com'
         
-          git config user.name 'leandroberetta'
+          git config user.name 'kiali-bot'
 
       - name: Create tag 
         if: ${{ needs.initialize.outputs.release_type != 'edge' }}
@@ -209,5 +209,5 @@ jobs:
           
           curl -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
             -H "Content-Type: application/json" \
-            -d "{\"title\": \"Prepare for next version\", \"body\": \"Please, merge to update version numbers and prepare for release $NEXT_VERSION.\", \"head\": \"leandroberetta:$BUILD_TAG\", \"base\": \"$RELEASING_BRANCH\"}" \
+            -d "{\"title\": \"Prepare for next version\", \"body\": \"Please, merge to update version numbers and prepare for release $NEXT_VERSION.\", \"head\": \"kiali-bot:$BUILD_TAG\", \"base\": \"$RELEASING_BRANCH\"}" \
             -X POST $PULL_URI      
