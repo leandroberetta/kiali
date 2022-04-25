@@ -17,7 +17,7 @@ on:
       repository:
         description: Repository (in owner/repo format)
         required: true
-        default: kiali/kiali 
+        default: kiali/kiali
         type: string
       releasing_branch:
         description: Branch to release
@@ -43,7 +43,10 @@ jobs:
       next_version: ${{ steps.next_version.outputs.next_version }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.event.inputs.repository }}
+          ref: ${{ github.event.inputs.releasing_branch }}  
       
       - name: Determine release type
         id: release_type        
