@@ -133,24 +133,25 @@ jobs:
     with:
       target_branch: ${{needs.initialize.outputs.target_branch}}
   
-  integration_tests_backend:
-    name: Run backend integration tests
-    uses: ./.github/workflows/integration-tests-backend.yml
-    needs: [initialize, build_backend, build_frontend]
-    with:
-      target_branch: ${{needs.initialize.outputs.target_branch}}
+  # integration_tests_backend:
+  #   name: Run backend integration tests
+  #   uses: ./.github/workflows/integration-tests-backend.yml
+  #   needs: [initialize, build_backend, build_frontend]
+  #   with:
+  #     target_branch: ${{needs.initialize.outputs.target_branch}}
   
-  integration_tests_frontend:
-    name: Run frontend integration tests
-    uses: ./.github/workflows/integration-tests-frontend.yml
-    needs: [initialize, build_backend, build_frontend]
-    with:
-      target_branch: ${{needs.initialize.outputs.target_branch}}
+  # integration_tests_frontend:
+  #   name: Run frontend integration tests
+  #   uses: ./.github/workflows/integration-tests-frontend.yml
+  #   needs: [initialize, build_backend, build_frontend]
+  #   with:
+  #     target_branch: ${{needs.initialize.outputs.target_branch}}
   
   release:
     name: Release
     runs-on: ubuntu-20.04
-    needs: [initialize, build_backend, build_frontend, integration_tests_backend, integration_tests_frontend]
+    #needs: [initialize, build_backend, build_frontend, integration_tests_backend, integration_tests_frontend]
+    needs: [initialize, build_backend, build_frontend]
     env:
       RELEASE_TYPE: ${{ needs.initialize.outputs.release_type }}
       RELEASE_VERSION: ${{ needs.initialize.outputs.release_version }}
