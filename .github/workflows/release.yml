@@ -38,7 +38,7 @@ jobs:
       target_branch: ${{ github.base_ref || github.ref_name }}
       release_type: ${{ steps.release_type.outputs.release_type }}
       release_version: ${{ steps.release_version.outputs.release_version }}
-      branch_version: v${{ steps.branch_version.outputs.branch_version }}
+      branch_version: ${{ steps.branch_version.outputs.branch_version }}
       next_version: ${{ steps.next_version.outputs.next_version }}
     steps:
       - name: Checkout code
