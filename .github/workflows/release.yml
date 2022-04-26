@@ -243,7 +243,7 @@ jobs:
 
           git push origin $(git rev-parse HEAD):refs/heads/$BUILD_TAG
 
-          gh pr create -t "Prepare for next version" -b "Please, merge to update version numbers and prepare for release $NEXT_VERSION." -h $BUILD_TAG -B $RELEASE_BRANCH
+          gh pr create --head -t "Prepare for next version" -b "Please, merge to update version numbers and prepare for release $NEXT_VERSION." -h $BUILD_TAG -B $RELEASE_BRANCH
 
           # curl -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
           #   -H "Content-Type: application/json" \
