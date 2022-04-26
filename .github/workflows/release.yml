@@ -223,7 +223,7 @@ jobs:
 
           # curl -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
           #   -H "Content-Type: application/json" \
-          #   -d "{\"name\": \"Kiali Operator $RELEASE_VERSION\", \"tag_name\": \"$RELEASE_VERSION\", \"prerelease\": $PRERELEASE}" \
+          #   -d "{\"name\": \"Kiali $RELEASE_VERSION\", \"tag_name\": \"$RELEASE_VERSION\", \"prerelease\": $PRERELEASE}" \
           #   -X POST $GH_RELEASE_URI
 
       - name: Create or update version branch
