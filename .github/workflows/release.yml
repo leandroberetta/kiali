@@ -191,11 +191,8 @@ jobs:
         with:
           name: build
           path: frontend/build
-
-      - name: Build image
-        run: make clean build
-
-      - name: Push image
+      
+      - name: Build and push image
         run: |
           docker login -u ${{ secrets.QUAY_USER }} -p ${{ secrets.QUAY_PASSWORD }} quay.io
 
@@ -220,7 +217,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [[ $RELEASE_TYPE == *"snapshot"* ]]; then export PRERELEASE="-P"; fi
+          if [[ $RELEASE_TYPE == *"snapshot"* ]]; then export PRERELEASE="-p"; fi
 
           gh release create $RELEASE_VERSION $PRERELEASE -t "Kiali Operator $RELEASE_VERSION"
 
