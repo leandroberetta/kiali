@@ -69,13 +69,13 @@ jobs:
 
           if [[ $RELEASE_TYPE == "patch" ]]
           then
-            RELEASE_VERSION=v$(./.github/workflows/util/bump.py $RELEASE_TYPE $RELEASE_VERSION)
+            RELEASE_VERSION=$(./.github/workflows/util/bump.py $RELEASE_TYPE $RELEASE_VERSION)
           elif [[ $RELEASE_TYPE == *"snapshot"* ]]
           then
-            RELEASE_VERSION="v$RELEASE_VERSION-$RELEASE_TYPE"
+            RELEASE_VERSION="$RELEASE_VERSION-$RELEASE_TYPE"
           elif [[ $RELEASE_TYPE == "minor" ]]
           then
-            RELEASE_VERSION=v$RELEASE_VERSION
+            RELEASE_VERSION=$RELEASE_VERSION
           elif [[ $RELEASE_TYPE == "edge" ]]
           then
             RELEASE_VERSION=latest
@@ -92,10 +92,10 @@ jobs:
         run: |          
           if [[ $RELEASE_TYPE == "patch" ]]
           then
-              NEXT_VERSION=v$(./.github/workflows/util/bump $RELEASE_TYPE $RELEASE_VERSION)
+              NEXT_VERSION=$(./.github/workflows/util/bump $RELEASE_TYPE $RELEASE_VERSION)
           elif [[ $RELEASE_TYPE == "minor" ]]
           then 
-              NEXT_VERSION=v$(./.github/workflows/util/bump.py $RELEASE_TYPE $RELEASE_VERSION)          
+              NEXT_VERSION=$(./.github/workflows/util/bump.py $RELEASE_TYPE $RELEASE_VERSION)          
           fi
 
           echo "::set-output name=next_version::$NEXT_VERSION"
