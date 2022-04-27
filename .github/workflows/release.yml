@@ -233,6 +233,7 @@ jobs:
       - name: Create a PR to prepare for next version
         env:
           BUILD_TAG: kiali-release-${{ github.run_number }}-main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: ${{ needs.initialize.outputs.release_type == 'minor' }}
         run: |
           sed -i -r "s/^VERSION \?= (.*)/VERSION \?= $NEXT_VERSION-SNAPSHOT/" Makefile
