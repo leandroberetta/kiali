@@ -65,14 +65,14 @@ jobs:
           RAW_VERSION=$(sed -rn 's/^VERSION \?= v(.*)/\1/p' Makefile)
 
           # Remove any pre release identifier (ie: "-SNAPSHOT")
-          RELEASE_VERSION=$(./.github/workflows/util/semver bump release $RAW_VERSION)          
+          RELEASE_VERSION=${RAW_VERSION%-*}
 
           if [[ $RELEASE_TYPE == "patch" ]]
           then
-            RELEASE_VERSION=v$(./.github/workflows/util/semver bump $RELEASE_TYPE $RELEASE_VERSION)
+            RELEASE_VERSION=v$(./.github/workflows/util/bump.py $RELEASE_TYPE $RELEASE_VERSION)
           elif [[ $RELEASE_TYPE == *"snapshot"* ]]
           then
-            RELEASE_VERSION=v$(./.github/workflows/util/semver bump prerel $RELEASE_TYPE $RELEASE_VERSION)
+            RELEASE_VERSION="v$RELEASE_VERSION-$RELEASE_TYPE"
           elif [[ $RELEASE_TYPE == "minor" ]]
           then
             RELEASE_VERSION=v$RELEASE_VERSION
@@ -89,16 +89,13 @@ jobs:
           RELEASE_VERSION: ${{ steps.release_version.outputs.release_version }}
         id: next_version
         if: ${{ steps.release_type.outputs.release_type == 'patch' || steps.release_type.outputs.release_type == 'minor' }}
-        run: |
-          # Drop the version prefix ("v")
-          RELEASE_VERSION=${RELEASE_VERSION:1}
-
+        run: |          
           if [[ $RELEASE_TYPE == "patch" ]]
           then
-              NEXT_VERSION=v$(./.github/workflows/util/semver bump $RELEASE_TYPE $RELEASE_VERSION)
+              NEXT_VERSION=v$(./.github/workflows/util/bump $RELEASE_TYPE $RELEASE_VERSION)
           elif [[ $RELEASE_TYPE == "minor" ]]
           then 
-              NEXT_VERSION=v$(./.github/workflows/util/semver bump minor $RELEASE_VERSION)          
+              NEXT_VERSION=v$(./.github/workflows/util/bump.py $RELEASE_TYPE $RELEASE_VERSION)          
           fi
 
           echo "::set-output name=next_version::$NEXT_VERSION"
