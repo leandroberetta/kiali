@@ -62,7 +62,7 @@ jobs:
           RELEASE_TYPE: ${{ steps.release_type.outputs.release_type }}
         id: release_version
         run: |
-          RAW_VERSION=$(sed -rn 's/^VERSION \?= v(.*)/\1/p' Makefile)
+          RAW_VERSION=$(sed -rn 's/^VERSION \?= (.*)/\1/p' Makefile)
 
           # Remove any pre release identifier (ie: "-SNAPSHOT")
           RELEASE_VERSION=${RAW_VERSION%-*}
@@ -166,7 +166,7 @@ jobs:
           ref: ${{ github.event.inputs.release_branch }}
 
       - name: Set version to release
-        run: sed -i -r 's/^VERSION \?= v.*/VERSION \?= $RELEASE_VERSION/' Makefile
+        run: sed -i -r "s/^VERSION \?= (.*)/VERSION \?= $RELEASE_VERSION/" Makefile
 
       - name: Set up Go
         uses: actions/setup-go@v2
