@@ -59,7 +59,8 @@ jobs:
         elif release_type == 'patch':
             patch = patch + 1
         print('.'.join(['v' + str(major), str(minor), str(patch)]))
-        EOF              
+        EOF
+                      
 
     - name: Determine release version
       env:
