@@ -257,7 +257,10 @@ jobs:
       run: |
         sed -i -r "s/^VERSION \?= (.*)/VERSION \?= $NEXT_VERSION-SNAPSHOT/" Makefile
 
-        git add Makefile
+        jq -r '.version |= "$(RELEASE_VERSION)"' frontend/package.json > frontend/package.json.tmp
+        mv frontend/package.json.tmp frontend/package.json
+
+        git add Makefile package.json
 
         git commit -m "Prepare for next version"
 
