@@ -175,8 +175,7 @@ jobs:
     name: Release
     runs-on: ubuntu-20.04
     needs: [initialize, build_backend, build_frontend, integration_tests_backend, integration_tests_frontend]
-    env:
-      RELEASE_TYPE: ${{ needs.initialize.outputs.release_type }}
+    env:      
       RELEASE_VERSION: ${{ needs.initialize.outputs.release_version }}
       BRANCH_VERSION: ${{ needs.initialize.outputs.branch_version }}
       NEXT_VERSION: ${{ needs.initialize.outputs.next_version }}
@@ -232,7 +231,7 @@ jobs:
         git config user.name 'kiali-bot'
 
     - name: Create tag
-      if: ${{ needs.initialize.outputs.release_type != 'latest' }}
+      if: ${{ github.event.inputs.release_type != 'latest' }}
       run: |
         git add Makefile
 
@@ -247,14 +246,14 @@ jobs:
         gh release create $RELEASE_VERSION -t "Kiali $RELEASE_VERSION"
 
     - name: Create or update version branch
-      if: ${{ needs.initialize.outputs.release_type != 'latest' }}
+      if: ${{ github.event.inputs.release_type != 'latest' }}
       run: git push origin $(git rev-parse HEAD):refs/heads/$BRANCH_VERSION
 
     - name: Create a PR to prepare for next version
       env:
         BUILD_TAG: kiali-release-${{ github.run_number }}-main
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      if: ${{ needs.initialize.outputs.release_type == 'minor' }}
+      if: ${{ github.event.inputs.release_type == 'minor' }}
       run: |
         sed -i -r "s/^VERSION \?= (.*)/VERSION \?= $NEXT_VERSION-SNAPSHOT/" Makefile
 
