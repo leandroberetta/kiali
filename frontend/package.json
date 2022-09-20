@@ -114,7 +114,7 @@
     "@types/react-redux": "7.1.7",
     "@types/react-router-dom": "5.1.5",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.6.7",
-    "axios-mock-adapter": "1.16.0",
+    "axios-mock-adapter": "1.21.2",
     "cypress": "^10.7.0",
     "@badeball/cypress-cucumber-preprocessor": "^12.2.0",
     "@cypress/browserify-preprocessor": "3.0.2",
