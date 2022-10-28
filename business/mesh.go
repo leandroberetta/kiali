@@ -642,3 +642,29 @@ func (in *MeshService) IstiodResourceThresholds() (*models.IstiodThresholds, err
 
 	return &thresholds, nil
 }
+
+func (in *MeshService) IstiodCanariesStatus() (*models.CanariesStatus, error) {
+	conf := config.Get()
+	revision := conf.ExternalServices.Istio.IstioCanaryRevision.Upgrade
+
+	migratedNss, err := in.k8s.GetNamespaces(fmt.Sprintf("istio.io/rev=%s", revision))
+	if err != nil {
+		return nil, err
+	}
+	pendingNss, err := in.k8s.GetNamespaces("istio-injection=enabled")
+	if err != nil {
+		return nil, err
+	}
+
+	var migratedNsList []string
+	for _, ns := range migratedNss {
+		migratedNsList = append(migratedNsList, ns.Name)
+	}
+
+	var pendingNsList []string
+	for _, ns := range pendingNss {
+		pendingNsList = append(pendingNsList, ns.Name)
+	}
+
+	return &models.CanariesStatus{MigratedNamespaces: migratedNsList, PendingNamespaces: pendingNsList}, nil
+}
