@@ -656,12 +656,12 @@ func (in *MeshService) IstiodCanariesStatus() (*models.CanariesStatus, error) {
 		return nil, err
 	}
 
-	var migratedNsList []string
+	migratedNsList := []string{}
 	for _, ns := range migratedNss {
 		migratedNsList = append(migratedNsList, ns.Name)
 	}
 
-	var pendingNsList []string
+	pendingNsList := []string{}
 	for _, ns := range pendingNss {
 		pendingNsList = append(pendingNsList, ns.Name)
 	}

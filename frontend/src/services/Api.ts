@@ -25,7 +25,8 @@ import {
   EnvoyProxyDump,
   VirtualService,
   DestinationRuleC,
-  OutboundTrafficPolicy
+  OutboundTrafficPolicy,
+  CanaryUpgradeStatus
 } from '../types/IstioObjects';
 import { ComponentStatus, IstiodResourceThresholds } from '../types/IstioStatus';
 import { JaegerInfo, JaegerResponse, JaegerSingleResponse } from '../types/JaegerInfo';
@@ -648,4 +649,8 @@ export function deleteServiceTrafficRouting(
 
 export const getCrippledFeatures = (): Promise<Response<KialiCrippledFeatures>> => {
   return newRequest<KialiCrippledFeatures>(HTTP_VERBS.GET, urls.crippledFeatures, {}, {});
+};
+
+export const getCanaryUpgradeStatus = () => {
+  return newRequest<CanaryUpgradeStatus>(HTTP_VERBS.GET, urls.canaryUpgradeStatus(), {}, {});
 };

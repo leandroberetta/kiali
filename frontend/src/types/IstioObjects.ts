@@ -1183,3 +1183,8 @@ export interface APIKey {
   header?: string;
   cookie?: string;
 }
+
+export interface CanaryUpgradeStatus { 
+  migratedNamespaces: string[];
+  pendingNamespaces: string[];
+}

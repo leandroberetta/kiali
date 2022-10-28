@@ -41,7 +41,7 @@ import OverviewCardSparklineCharts from './OverviewCardSparklineCharts';
 import OverviewTrafficPolicies from './OverviewTrafficPolicies';
 import { IstioMetricsOptions } from '../../types/MetricsOptions';
 import { computePrometheusRateParams } from '../../services/Prometheus';
-import { KialiAppState} from '../../store/Store';
+import { KialiAppState } from '../../store/Store';
 import { connect } from 'react-redux';
 import {
   durationSelector,
@@ -62,7 +62,7 @@ import { OverviewNamespaceAction, OverviewNamespaceActions } from './OverviewNam
 import history, { HistoryManager, URLParam } from '../../app/History';
 import * as AlertUtils from '../../utils/AlertUtils';
 import { MessageType } from '../../types/MessageCenter';
-import { OutboundTrafficPolicy, ValidationStatus } from '../../types/IstioObjects';
+import { CanaryUpgradeStatus, OutboundTrafficPolicy, ValidationStatus } from '../../types/IstioObjects';
 import { GrafanaInfo, ISTIO_DASHBOARDS } from '../../types/GrafanaInfo';
 import { ExternalLink } from '../../types/Dashboards';
 import { isParentKiosk, kioskOverviewAction } from "../../components/Kiosk/KioskActions";
@@ -73,6 +73,7 @@ import OverviewStatusContainer from './OverviewStatus';
 import ControlPlaneNamespaceStatus from './ControlPlaneNamespaceStatus';
 import { IstiodResourceThresholds } from 'types/IstioStatus';
 import TLSInfo from 'components/Overview/TLSInfo';
+import CanaryUpgradeProgress from './CanaryUpgradeProgress';
 
 const gridStyleCompact = style({
   backgroundColor: '#f5f5f5',
@@ -146,6 +147,7 @@ type State = {
   grafanaLinks: ExternalLink[];
   istiodResourceThreholds: IstiodResourceThresholds;
   outboundPolicyMode: OutboundTrafficPolicy;
+  canaryUpgradeStatus?: CanaryUpgradeStatus;
 };
 
 type ReduxProps = {
@@ -178,8 +180,9 @@ export class OverviewPage extends React.Component<OverviewProps, State> {
       nsTarget: '',
       opTarget: '',
       grafanaLinks: [],
-      istiodResourceThreholds: {memory: 0, cpu: 0},
-      outboundPolicyMode: {}
+      istiodResourceThreholds: { memory: 0, cpu: 0 },
+      outboundPolicyMode: {},
+      canaryUpgradeStatus: undefined
     };
   }
 
@@ -264,11 +267,11 @@ export class OverviewPage extends React.Component<OverviewProps, State> {
             this.fetchHealth(isAscending, sortField, type);
             this.fetchTLS(isAscending, sortField);
             this.fetchOutboundTrafficPolicyMode();
+            this.fetchCanariesStatus();
             this.fetchIstiodResourceThresholds();
             this.fetchValidations(isAscending, sortField);
             if (displayMode !== OverviewDisplayMode.COMPACT) {
               this.fetchMetrics(direction);
-              //this.fetchControlPlaneMetrics();
             }
           }
         );
@@ -497,17 +500,32 @@ export class OverviewPage extends React.Component<OverviewProps, State> {
   fetchOutboundTrafficPolicyMode() {
     API.getOutboundTrafficPolicyMode()
       .then(response => {
-          this.setState({outboundPolicyMode: {mode: response.data.mode}})
+        this.setState({ outboundPolicyMode: { mode: response.data.mode } })
       })
       .catch(error => {
         AlertUtils.addError('Error fetching Mesh OutboundTrafficPolicy.Mode.', error, 'default', MessageType.ERROR);
       });
   };
 
+  fetchCanariesStatus() {
+    API.getCanaryUpgradeStatus()
+      .then(response => {
+        this.setState({
+          canaryUpgradeStatus: {
+            migratedNamespaces: response.data.migratedNamespaces,
+            pendingNamespaces: response.data.pendingNamespaces
+          }
+        })
+      })
+      .catch(error => {
+        AlertUtils.addError('Error fetching canary upgrade status.', error, 'default', MessageType.ERROR);
+      });
+  };
+
   fetchIstiodResourceThresholds() {
     API.getIstiodResourceThresholds()
       .then(response => {
-        this.setState({istiodResourceThreholds: response.data})
+        this.setState({ istiodResourceThreholds: response.data })
       })
       .catch(error => {
         AlertUtils.addError('Error fetching Istiod resource threholds.', error, 'default', MessageType.ERROR);
@@ -529,7 +547,6 @@ export class OverviewPage extends React.Component<OverviewProps, State> {
     if (mode === OverviewDisplayMode.EXPAND) {
       // Load metrics
       this.fetchMetrics(this.state.direction);
-      //this.fetchControlPlaneMetrics();
     }
   };
 
@@ -875,9 +892,10 @@ export class OverviewPage extends React.Component<OverviewProps, State> {
                                   )}
                                   {this.renderIstioConfigStatus(ns)}
                                 </div>
-                                { ns.status && <NamespaceStatuses key={ns.name} name={ns.name} status={ns.status} type={this.state.type} />}
-                                { this.state.displayMode === OverviewDisplayMode.EXPAND && <ControlPlaneNamespaceStatus outboundTrafficPolicy={this.state.outboundPolicyMode} namespace={ns}></ControlPlaneNamespaceStatus>}
-                                { this.state.displayMode === OverviewDisplayMode.EXPAND && <TLSInfo mTLS={true} version={this.props.minTLS}></TLSInfo> }
+                                {ns.status && <NamespaceStatuses key={ns.name} name={ns.name} status={ns.status} type={this.state.type} />}
+                                {this.state.displayMode === OverviewDisplayMode.EXPAND && <ControlPlaneNamespaceStatus outboundTrafficPolicy={this.state.outboundPolicyMode} namespace={ns}></ControlPlaneNamespaceStatus>}
+                                {this.state.displayMode === OverviewDisplayMode.EXPAND && <TLSInfo mTLS={true} version={this.props.minTLS}></TLSInfo>}
+                                {this.state.canaryUpgradeStatus && <CanaryUpgradeProgress migratedNamespaces={this.state.canaryUpgradeStatus.migratedNamespaces} pendingNamespaces={this.state.canaryUpgradeStatus.pendingNamespaces}/>}
                               </GridItem>
                               {ns.name === serverConfig.istioNamespace &&
                                 <GridItem md={9}>
