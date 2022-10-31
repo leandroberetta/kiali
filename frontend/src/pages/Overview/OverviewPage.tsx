@@ -899,12 +899,12 @@ export class OverviewPage extends React.Component<OverviewProps, State> {
                               {ns.name === serverConfig.istioNamespace &&
                                 <GridItem md={9}>
                                   <Grid>
-                                    {this.state.canaryUpgradeStatus &&
-                                      <GridItem  md={4} lg={3}>
+                                    {this.state.canaryUpgradeStatus && this.state.canaryUpgradeStatus.pendingNamespaces.length > 0 &&
+                                      <GridItem md={4}>
                                         <CanaryUpgradeProgress migratedNamespaces={this.state.canaryUpgradeStatus.migratedNamespaces} pendingNamespaces={this.state.canaryUpgradeStatus.pendingNamespaces} />
                                       </GridItem>
                                     }
-                                    <GridItem  md={8} lg={9}>
+                                    <GridItem md={(this.state.canaryUpgradeStatus && this.state.canaryUpgradeStatus.pendingNamespaces.length > 0) ? 8 : 12}>
                                       {this.renderCharts(ns)}
                                     </GridItem>
 
