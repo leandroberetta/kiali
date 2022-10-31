@@ -895,11 +895,21 @@ export class OverviewPage extends React.Component<OverviewProps, State> {
                                 {ns.status && <NamespaceStatuses key={ns.name} name={ns.name} status={ns.status} type={this.state.type} />}
                                 {this.state.displayMode === OverviewDisplayMode.EXPAND && <ControlPlaneNamespaceStatus outboundTrafficPolicy={this.state.outboundPolicyMode} namespace={ns}></ControlPlaneNamespaceStatus>}
                                 {this.state.displayMode === OverviewDisplayMode.EXPAND && <TLSInfo mTLS={true} version={this.props.minTLS}></TLSInfo>}
-                                {this.state.canaryUpgradeStatus && <CanaryUpgradeProgress migratedNamespaces={this.state.canaryUpgradeStatus.migratedNamespaces} pendingNamespaces={this.state.canaryUpgradeStatus.pendingNamespaces}/>}
                               </GridItem>
                               {ns.name === serverConfig.istioNamespace &&
                                 <GridItem md={9}>
-                                  {this.renderCharts(ns)}
+                                  <Grid>
+                                    {this.state.canaryUpgradeStatus &&
+                                      <GridItem  md={4} lg={3}>
+                                        <CanaryUpgradeProgress migratedNamespaces={this.state.canaryUpgradeStatus.migratedNamespaces} pendingNamespaces={this.state.canaryUpgradeStatus.pendingNamespaces} />
+                                      </GridItem>
+                                    }
+                                    <GridItem  md={8} lg={9}>
+                                      {this.renderCharts(ns)}
+                                    </GridItem>
+
+                                  </Grid>
+
                                 </GridItem>
                               }
                             </Grid>
