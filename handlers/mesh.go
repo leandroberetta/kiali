@@ -51,6 +51,6 @@ func IstiodCanariesStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	irt, _ := business.Mesh.IstiodCanariesStatus()
+	irt, _ := business.Mesh.CanaryUpgradeStatus()
 	RespondWithJSON(w, http.StatusOK, irt)
 }

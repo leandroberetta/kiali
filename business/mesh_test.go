@@ -392,7 +392,7 @@ func TestCanaryUpgradeNotConfigured(t *testing.T) {
 	layer := NewWithBackends(k8s, nil, nil)
 	meshSvc := layer.Mesh
 
-	canaryUpgradeStatus, err := meshSvc.IstiodCanariesStatus()
+	canaryUpgradeStatus, err := meshSvc.CanaryUpgradeStatus()
 
 	check.Nil(err, "IstiodCanariesStatus failed: %s", err)
 	check.NotNil(canaryUpgradeStatus)
@@ -429,7 +429,7 @@ func TestCanaryUpgradeConfigured(t *testing.T) {
 	layer := NewWithBackends(k8s, nil, nil)
 	meshSvc := layer.Mesh
 
-	canaryUpgradeStatus, err := meshSvc.IstiodCanariesStatus()
+	canaryUpgradeStatus, err := meshSvc.CanaryUpgradeStatus()
 
 	check.Nil(err, "IstiodCanariesStatus failed: %s", err)
 	check.Contains(canaryUpgradeStatus.MigratedNamespaces, "travel-agency")
