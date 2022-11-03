@@ -81,7 +81,7 @@ class OverviewCardControlPlaneNamespace extends React.Component<ControlPlaneProp
         return (
             <div style={{ textAlign: 'center' }}>
                 <div>
-                    <div style={{ display: 'inline-block', width: '125px', whiteSpace: 'nowrap' }}>Control Plane Metrics</div>
+                    <div style={{ display: 'inline-block', width: '125px', whiteSpace: 'nowrap' }}>Control plane metrics</div>
                 </div>
                 <div
                     style={{

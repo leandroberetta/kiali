@@ -1185,6 +1185,8 @@ export interface APIKey {
 }
 
 export interface CanaryUpgradeStatus { 
+  currentVersion: string;
+  upgradeVersion: string;
   migratedNamespaces: string[];
   pendingNamespaces: string[];
 }

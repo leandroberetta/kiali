@@ -74,6 +74,7 @@ import ControlPlaneNamespaceStatus from './ControlPlaneNamespaceStatus';
 import { IstiodResourceThresholds } from 'types/IstioStatus';
 import TLSInfo from 'components/Overview/TLSInfo';
 import CanaryUpgradeProgress from './CanaryUpgradeProgress';
+import ControlPlaneVersionBadge from './ControlPlaneVersionBadge';
 
 const gridStyleCompact = style({
   backgroundColor: '#f5f5f5',
@@ -512,6 +513,8 @@ export class OverviewPage extends React.Component<OverviewProps, State> {
       .then(response => {
         this.setState({
           canaryUpgradeStatus: {
+            currentVersion: response.data.currentVersion,
+            upgradeVersion: response.data.upgradeVersion,
             migratedNamespaces: response.data.migratedNamespaces,
             pendingNamespaces: response.data.pendingNamespaces
           }
@@ -872,6 +875,12 @@ export class OverviewPage extends React.Component<OverviewProps, State> {
                                 {ns.name === serverConfig.istioNamespace &&
                                   <ControlPlaneBadge></ControlPlaneBadge>
                                 }
+                                {ns.name !== serverConfig.istioNamespace && this.state.canaryUpgradeStatus?.migratedNamespaces.includes(ns.name) &&
+                                  <ControlPlaneVersionBadge version={this.state.canaryUpgradeStatus.upgradeVersion} isCanary={true}></ControlPlaneVersionBadge>
+                                }
+                                {ns.name !== serverConfig.istioNamespace && this.state.canaryUpgradeStatus?.pendingNamespaces.includes(ns.name) &&
+                                  <ControlPlaneVersionBadge version={this.state.canaryUpgradeStatus.currentVersion} isCanary={false}></ControlPlaneVersionBadge>
+                                }
                               </span>
                             </Title>
                           </CardHeaderMain>
@@ -879,8 +888,8 @@ export class OverviewPage extends React.Component<OverviewProps, State> {
                         </CardHeader>
                         <CardBody>
                           {ns.name === serverConfig.istioNamespace && this.state.displayMode === OverviewDisplayMode.EXPAND &&
-                            <Grid>
-                              <GridItem md={3}>
+                            <Grid style={{ alignItems: "center" }}>
+                              <GridItem md={3} >
                                 {this.renderLabels(ns)}
 
                                 <div style={{ textAlign: 'left' }}>
@@ -901,7 +910,7 @@ export class OverviewPage extends React.Component<OverviewProps, State> {
                                   <Grid>
                                     {this.state.canaryUpgradeStatus && this.state.canaryUpgradeStatus.pendingNamespaces.length > 0 &&
                                       <GridItem md={4}>
-                                        <CanaryUpgradeProgress migratedNamespaces={this.state.canaryUpgradeStatus.migratedNamespaces} pendingNamespaces={this.state.canaryUpgradeStatus.pendingNamespaces} />
+                                        <CanaryUpgradeProgress canaryUpgradeStatus={this.state.canaryUpgradeStatus} />
                                       </GridItem>
                                     }
                                     <GridItem md={(this.state.canaryUpgradeStatus && this.state.canaryUpgradeStatus.pendingNamespaces.length > 0) ? 8 : 12}>
