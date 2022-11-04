@@ -386,6 +386,7 @@ func TestCanaryUpgradeNotConfigured(t *testing.T) {
 	k8s.On("IsOpenShift").Return(false)
 	k8s.On("IsGatewayAPI").Return(false)
 	k8s.On("GetNamespaces", "istio-injection=enabled").Return([]core_v1.Namespace{}, nil)
+	k8s.On("GetNamespaces", "istio.io/rev=default").Return([]core_v1.Namespace{}, nil)
 	k8s.On("GetNamespaces", "istio.io/rev=canary").Return([]core_v1.Namespace{}, nil)
 
 	// Create a MeshService and invoke IsMeshConfigured
@@ -423,6 +424,7 @@ func TestCanaryUpgradeConfigured(t *testing.T) {
 	pendingNamespaces := []core_v1.Namespace{pendingNamespace}
 
 	k8s.On("GetNamespaces", "istio-injection=enabled").Return(pendingNamespaces, nil)
+	k8s.On("GetNamespaces", "istio.io/rev=default").Return([]core_v1.Namespace{}, nil)
 	k8s.On("GetNamespaces", "istio.io/rev=canary").Return(migratedNamespaces, nil)
 
 	// Create a MeshService and invoke IsMeshConfigured

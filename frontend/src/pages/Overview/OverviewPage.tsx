@@ -815,6 +815,15 @@ export class OverviewPage extends React.Component<OverviewProps, State> {
     });
   };
 
+  hasCanaryUpgradeConfigured = (): boolean => {
+    if (this.state.canaryUpgradeStatus) {
+      if (this.state.canaryUpgradeStatus.pendingNamespaces.length > 0 || this.state.canaryUpgradeStatus.migratedNamespaces.length > 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   render() {
     const sm = this.state.displayMode === OverviewDisplayMode.COMPACT ? 3 : 6;
     const md = this.state.displayMode === OverviewDisplayMode.COMPACT ? 3 : 4;
@@ -875,10 +884,10 @@ export class OverviewPage extends React.Component<OverviewProps, State> {
                                 {ns.name === serverConfig.istioNamespace &&
                                   <ControlPlaneBadge></ControlPlaneBadge>
                                 }
-                                {ns.name !== serverConfig.istioNamespace && this.state.canaryUpgradeStatus?.migratedNamespaces.includes(ns.name) &&
+                                {ns.name !== serverConfig.istioNamespace && this.hasCanaryUpgradeConfigured() && this.state.canaryUpgradeStatus?.migratedNamespaces.includes(ns.name) &&
                                   <ControlPlaneVersionBadge version={this.state.canaryUpgradeStatus.upgradeVersion} isCanary={true}></ControlPlaneVersionBadge>
                                 }
-                                {ns.name !== serverConfig.istioNamespace && this.state.canaryUpgradeStatus?.pendingNamespaces.includes(ns.name) &&
+                                {ns.name !== serverConfig.istioNamespace && this.hasCanaryUpgradeConfigured() && this.state.canaryUpgradeStatus?.pendingNamespaces.includes(ns.name) &&
                                   <ControlPlaneVersionBadge version={this.state.canaryUpgradeStatus.currentVersion} isCanary={false}></ControlPlaneVersionBadge>
                                 }
                               </span>
@@ -908,12 +917,12 @@ export class OverviewPage extends React.Component<OverviewProps, State> {
                               {ns.name === serverConfig.istioNamespace &&
                                 <GridItem md={9}>
                                   <Grid>
-                                    {this.state.canaryUpgradeStatus && this.state.canaryUpgradeStatus.pendingNamespaces.length > 0 &&
+                                    {this.state.canaryUpgradeStatus && this.hasCanaryUpgradeConfigured() &&
                                       <GridItem md={4}>
                                         <CanaryUpgradeProgress canaryUpgradeStatus={this.state.canaryUpgradeStatus} />
                                       </GridItem>
                                     }
-                                    <GridItem md={(this.state.canaryUpgradeStatus && this.state.canaryUpgradeStatus.pendingNamespaces.length > 0) ? 8 : 12}>
+                                    <GridItem md={(this.hasCanaryUpgradeConfigured()) ? 8 : 12}>
                                       {this.renderCharts(ns)}
                                     </GridItem>
 
