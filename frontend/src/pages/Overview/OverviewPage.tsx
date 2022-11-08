@@ -897,12 +897,12 @@ export class OverviewPage extends React.Component<OverviewProps, State> {
                         </CardHeader>
                         <CardBody>
                           {ns.name === serverConfig.istioNamespace && this.state.displayMode === OverviewDisplayMode.EXPAND &&
-                            <Grid style={{ alignItems: "center" }}>
+                            <Grid>
                               <GridItem md={3} >
                                 {this.renderLabels(ns)}
 
                                 <div style={{ textAlign: 'left' }}>
-                                  <div style={{ display: 'inline-block', width: '125px' }}>Istio Config</div>
+                                  <div style={{ display: 'inline-block', width: '125px' }}>Istio config</div>
                                   {ns.tlsStatus && (
                                     <span>
                                       <NamespaceMTLSStatusContainer status={ns.tlsStatus.status} />
@@ -937,7 +937,7 @@ export class OverviewPage extends React.Component<OverviewProps, State> {
                               {this.renderLabels(ns)}
 
                               <div style={{ textAlign: 'left' }}>
-                                <div style={{ display: 'inline-block', width: '125px' }}>Istio Config</div>
+                                <div style={{ display: 'inline-block', width: '125px' }}>Istio config</div>
                                 {ns.tlsStatus && (
                                   <span>
                                     <NamespaceMTLSStatusContainer status={ns.tlsStatus.status} />
@@ -1008,7 +1008,7 @@ export class OverviewPage extends React.Component<OverviewProps, State> {
           }
         >
           <div id="labels_info" style={{ display: 'inline' }}>
-            {labelsLength} Label{labelsLength !== '1' ? 's' : ''}
+            {labelsLength} label{labelsLength !== '1' ? 's' : ''}
           </div>
         </Tooltip>
       </div>
@@ -1077,9 +1077,9 @@ export class OverviewPage extends React.Component<OverviewProps, State> {
     }
     let text: string;
     if (nbItems === 1) {
-      text = switchType(this.state.type, '1 Application', '1 Service', '1 Workload');
+      text = switchType(this.state.type, '1 application', '1 service', '1 workload');
     } else {
-      text = nbItems + switchType(this.state.type, ' Applications', ' Services', ' Workloads');
+      text = nbItems + switchType(this.state.type, ' applications', ' services', ' workloads');
     }
     const mainLink = <div style={{ display: 'inline-block', width: '125px', whiteSpace: 'nowrap' }} data-test={'overview-type-' + this.state.type}>{text}</div>;
     if (nbItems === ns.status?.notAvailable.length) {
