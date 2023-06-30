@@ -217,6 +217,7 @@ jobs:
       NEXT_VERSION: ${{ needs.initialize.outputs.next_version }}
       RELEASE_BRANCH: ${{ github.event.inputs.release_branch || github.ref_name }}
       QUAY_TAG: ${{ needs.initialize.outputs.quay_tag }}
+      GO_VERSION: ${{ needs.initialize.outputs.go_version }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -236,7 +237,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version-file: go.mod
+        go-version: ${{ env.GO_VERSION }}
         cache: true
         cache-dependency-path: go.sum
 
