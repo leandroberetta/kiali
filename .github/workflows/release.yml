@@ -161,8 +161,6 @@ jobs:
 
     - name: Determine go version
       if: ${{ env.release_type != 'skip' }}
-      env:
-        RELEASE_TYPE: ${{ env.release_type }}
       id: go_version
       run: |
         GO_VERSION=$(sed -rn 's/^GO_VERSION_KIALI \= (.*)/\1/p' Makefile)
