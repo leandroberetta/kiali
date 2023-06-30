@@ -84,8 +84,8 @@ jobs:
       id: release_type
       run: |
         echo ${{ github.ref_name }}
-        if [ -z ${{ github.event.inputs.release_type }} ];
-        then
+        if [[ "${{ github.ref_name }}" == "master" ]];
+        then 
           DO_RELEASE=$(python minor.py)
           if [[ $DO_RELEASE == "1" ]]
           then
@@ -94,7 +94,7 @@ jobs:
             echo "release_type=skip" >> $GITHUB_ENV 
           fi
         else
-          echo "release_type=${{ github.event.inputs.release_type }}" >> $GITHUB_ENV 
+          echo "release_type=patch" >> $GITHUB_ENV 
         fi
 
     - name: Determine release version
