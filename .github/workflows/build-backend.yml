@@ -10,6 +10,8 @@ jobs:
   build_backend:
     name: Build and unit test backend
     runs-on: ubuntu-20.04
+    outputs:
+      go_version: ${{ steps.go_version.outputs.go_version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
