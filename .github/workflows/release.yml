@@ -36,6 +36,7 @@ jobs:
       branch_version: ${{ env.branch_version }}
       next_version: ${{ env.next_version }}
       quay_tag: ${{ env.quay_tag }}
+      go_version: ${{ env.go_version }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -236,8 +237,6 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version-file: go.mod
-        # The builtin cache feature ensures that installing golangci-lint
-        # is consistently fast.
         cache: true
         cache-dependency-path: go.sum
 
