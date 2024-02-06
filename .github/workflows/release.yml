@@ -9,7 +9,7 @@ on:
       quay_repository:
         description: Quay repository
         type: string
-        default: quay.io/kiali/kiali
+        default: quay.io/leandroberetta/kiali
         required: true
 
 jobs:
@@ -279,3 +279,13 @@ jobs:
         git push origin $(git rev-parse HEAD):refs/heads/$BUILD_TAG
 
         gh pr create -t "Prepare for next version" -b "Please, merge to update version numbers and prepare for release $NEXT_VERSION." -H $BUILD_TAG -B $RELEASE_BRANCH
+  next:
+    name: Next
+    if: ${{ needs.initialize.outputs.release_type != 'skip' && ((github.event_name == 'schedule' && github.repository == 'kiali/kiali') || github.event_name != 'schedule') }}
+    runs-on: ubuntu-20.04
+    needs: [initialize, build_backend, build_frontend, release]
+    steps:
+    - name: Run operator
+      run: |
+        echo "Running operator"
+        gh workflow run --repo kiali/kiali-operator --ref master --workflow "Release" --inputs quay_repository=quay.io/leandroberetta/kiali
