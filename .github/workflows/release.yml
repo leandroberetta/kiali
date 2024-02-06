@@ -78,7 +78,7 @@ jobs:
           then
             echo "release_type=minor" >> $GITHUB_ENV
           else
-            echo "release_type=skip" >> $GITHUB_ENV
+            echo "release_type=minor" >> $GITHUB_ENV
           fi
         else
           echo "release_type=patch" >> $GITHUB_ENV
