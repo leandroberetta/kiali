@@ -4,36 +4,46 @@
 */
 
 import { Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Controller, Edge, Visualization, Node, isNode, isEdge } from '@patternfly/react-topology';
 
 Then('user does not see a patternfly minigraph', () => {
   cy.get('#MiniGraphCard').find('h5').contains('Empty Graph');
 });
 
 Then('user sees a patternfly minigraph', () => {
-  cy.getBySel('mini-graph').within(() => {
-    cy.get('#cytoscape-graph').should('be.visible');
-    cy.get('#cy').should('be.visible');
-  });
+  cy.waitForReact();
+  cy.getReact('MiniGraphCardPFComponent', { state: { isReady: true } })
+    .should('have.length', 1)
+    .getCurrentState()
+    .then(state => {
+      const controller = state.graphRefs.getController() as Visualization;
+      assert.isTrue(controller.hasGraph());
+      const { nodes, edges } = elems(controller);
+      const nodeNames = nodes.map(n => n.getLabel());
+      assert.equal(nodes.length, 4, 'Unexpected number of infra nodes');
+      assert.equal(edges.length, 2, 'Unexpected number of infra edges');
+      assert.isTrue(nodeNames.some(n => n === 'details'));
+      assert.isTrue(nodeNames.some(n => n === 'v1'));
+      assert.isTrue(nodeNames.some(n => n === 'productpage'));
+    });
 });
 
 Then(
   'user sees the {string} namespace deployed across the east and west clusters in the patternfly graph',
   (namespace: string) => {
     cy.waitForReact();
-    cy.getReact('GraphPageComponent', { state: { isReady: true } })
-      .should('have.length', '1')
-      .then(() => {
-        cy.getReact('CytoscapeGraph')
-          .should('have.length', '1')
-          .getCurrentState()
-          .then(state => {
-            const namespaceBoxes = state.cy
-              .nodes()
-              .filter(node => node.data('isBox') === 'namespace' && node.data('namespace') === namespace);
-            expect(namespaceBoxes.length).to.equal(2);
-            expect(namespaceBoxes.filter(node => node.data('cluster') === 'east').length).to.equal(1);
-            expect(namespaceBoxes.filter(node => node.data('cluster') === 'west').length).to.equal(1);
-          });
+    cy.getReact('GraphPagePFComponent', { state: { isReady: true } })
+      .should('have.length', 1)
+      .getCurrentState()
+      .then(state => {
+        const controller = state.graphRefs.getController() as Visualization;
+        assert.isTrue(controller.hasGraph());
+        const { nodes } = elems(controller);
+        const namespaceBoxes = nodes
+              .filter(node => node.getData()('isBox') === 'namespace' && node.getData()('namespace') === namespace);
+        assert.equal(namespaceBoxes.length, 2, 'Unexpected number of namespace boxes');
+        assert.equal(namespaceBoxes.filter(node => node.getData()('cluster') === 'east').length, 1);
+        assert.equal(namespaceBoxes.filter(node => node.getData()('cluster') === 'west').length, 1);
       });
   }
 );
@@ -42,7 +52,7 @@ Then(
   'nodes in the {string} cluster in the patternfly graph should contain the cluster name in their links',
   (cluster: string) => {
     cy.waitForReact();
-    cy.getReact('GraphPageComponent', { state: { isReady: true } })
+    cy.getReact('GraphPageComponent', { state: { graphData: { isLoading: false } } })
       .should('have.length', '1')
       .then(() => {
         cy.getReact('CytoscapeGraph')
@@ -66,7 +76,7 @@ Then(
   'user clicks on the {string} workload in the {string} namespace in the {string} cluster in the patternfly graph',
   (workload: string, namespace: string, cluster: string) => {
     cy.waitForReact();
-    cy.getReact('GraphPageComponent', { state: { isReady: true } })
+    cy.getReact('GraphPageComponent', { state: { graphData: { isLoading: false } } })
       .should('have.length', '1')
       .then(() => {
         cy.getReact('CytoscapeGraph')
@@ -124,3 +134,13 @@ export const nodeInfo = (nodeType: string, graphType: string): { isBox?: string;
     isBox
   };
 };
+
+const elems = (c: Controller): { edges: Edge[]; nodes: Node[] } => {
+  const elems = c.getElements();
+
+  return {
+    nodes: elems.filter(e => isNode(e)) as Node[],
+    edges: elems.filter(e => isEdge(e)) as Edge[]
+  };
+};
+

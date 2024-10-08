@@ -40,6 +40,7 @@ import { KialiIcon } from 'config/KialiIcon';
 import { kebabToggleStyle } from 'styles/DropdownStyles';
 import { WorkloadWizardActionsDropdownGroup } from 'components/IstioWizards/WorkloadWizardActionsDropdownGroup';
 import { Workload } from 'types/Workload';
+import { GraphRefs } from './GraphPagePF';
 
 type ReduxDispatchProps = {
   onReady: (controller: any) => void;
@@ -67,12 +68,16 @@ type MiniGraphCardState = {
   graphData: DecoratedGraphElements;
   isKebabOpen: boolean;
   isTimeOptionsOpen: boolean;
+  graphRefs?: GraphRefs;
+  isReady: boolean;
 };
 
 class MiniGraphCardPFComponent extends React.Component<MiniGraphCardPropsPF, MiniGraphCardState> {
   constructor(props: MiniGraphCardPropsPF) {
     super(props);
-    this.state = { isKebabOpen: false, isTimeOptionsOpen: false, graphData: props.dataSource.graphData };
+    this.state = {
+      isReady: false, isKebabOpen: false, isTimeOptionsOpen: false, graphData: props.dataSource.graphData
+    };
   }
 
   componentDidMount(): void {
@@ -191,7 +196,7 @@ class MiniGraphCardPFComponent extends React.Component<MiniGraphCardPropsPF, Min
                 onEdgeTap={this.handleEdgeTap}
                 onLaunchWizard={this.handleLaunchWizard}
                 onNodeTap={this.handleNodeTap}
-                onReady={this.props.onReady}
+                onReady={this.handleReady}
                 setEdgeMode={this.props.setEdgeMode}
                 setLayout={this.props.setLayout}
                 setUpdateTime={this.props.setUpdateTime}
@@ -215,6 +220,10 @@ class MiniGraphCardPFComponent extends React.Component<MiniGraphCardPropsPF, Min
       </>
     );
   }
+
+  private handleReady = (refs: GraphRefs): void => {
+    this.setState({ graphRefs: refs, isReady: true });
+  };
 
   private handleLaunchWizard = (key: WizardAction, mode: WizardMode): void => {
     this.onGraphActionsToggle(false);
