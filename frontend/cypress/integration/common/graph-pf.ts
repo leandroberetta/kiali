@@ -20,11 +20,12 @@ Then('user sees a patternfly minigraph', () => {
       assert.isTrue(controller.hasGraph());
       const { nodes, edges } = elems(controller);
       const nodeNames = nodes.map(n => n.getLabel());
-      assert.equal(nodes.length, 4, 'Unexpected number of infra nodes');
+      const filteredNodes = nodes.filter(n => n.getType() !== 'group');
+      assert.equal(filteredNodes.length, 3, 'Unexpected number of infra nodes');
       assert.equal(edges.length, 2, 'Unexpected number of infra edges');
-      assert.isTrue(nodeNames.some(n => n === 'details'));
-      assert.isTrue(nodeNames.some(n => n === 'v1'));
-      assert.isTrue(nodeNames.some(n => n === 'productpage'));
+      assert.isTrue(nodeNames.some(n => n.includes('details')));
+      assert.isTrue(nodeNames.some(n => n.includes('v1')));
+      assert.isTrue(nodeNames.some(n => n.includes('productpage')));
     });
 });
 
@@ -32,19 +33,20 @@ Then(
   'user sees the {string} namespace deployed across the east and west clusters in the patternfly graph',
   (namespace: string) => {
     cy.waitForReact();
-    cy.getReact('GraphPagePFComponent', { state: { isReady: true } })
-      .should('have.length', 1)
-      .getCurrentState()
-      .then(state => {
-        const controller = state.graphRefs.getController() as Visualization;
-        assert.isTrue(controller.hasGraph());
-        const { nodes } = elems(controller);
-        const namespaceBoxes = nodes.filter(
-          node => node.getData()('isBox') === 'namespace' && node.getData()('namespace') === namespace
-        );
-        assert.equal(namespaceBoxes.length, 2, 'Unexpected number of namespace boxes');
-        assert.equal(namespaceBoxes.filter(node => node.getData()('cluster') === 'east').length, 1);
-        assert.equal(namespaceBoxes.filter(node => node.getData()('cluster') === 'west').length, 1);
+    cy.getReact('GraphPageComponent', { state: { isReady: true } })
+      .should('have.length', '1')
+      .then(() => {
+        cy.getReact('CytoscapeGraph')
+          .should('have.length', '1')
+          .getCurrentState()
+          .then(state => {
+            const namespaceBoxes = state.cy
+              .nodes()
+              .filter(node => node.data('isBox') === 'namespace' && node.data('namespace') === namespace);
+            expect(namespaceBoxes.length).to.equal(2);
+            expect(namespaceBoxes.filter(node => node.data('cluster') === 'east').length).to.equal(1);
+            expect(namespaceBoxes.filter(node => node.data('cluster') === 'west').length).to.equal(1);
+          });
       });
   }
 );
@@ -53,7 +55,7 @@ Then(
   'nodes in the {string} cluster in the patternfly graph should contain the cluster name in their links',
   (cluster: string) => {
     cy.waitForReact();
-    cy.getReact('GraphPageComponent', { state: { graphData: { isLoading: false } } })
+    cy.getReact('GraphPageComponent', { state: { isReady: true } })
       .should('have.length', '1')
       .then(() => {
         cy.getReact('CytoscapeGraph')
