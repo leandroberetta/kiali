@@ -66,17 +66,20 @@ type MiniGraphCardPropsPF = ReduxProps & {
 
 type MiniGraphCardState = {
   graphData: DecoratedGraphElements;
-  isKebabOpen: boolean;
-  isTimeOptionsOpen: boolean;
   graphRefs?: GraphRefs;
+  isKebabOpen: boolean;
   isReady: boolean;
+  isTimeOptionsOpen: boolean;
 };
 
 class MiniGraphCardPFComponent extends React.Component<MiniGraphCardPropsPF, MiniGraphCardState> {
   constructor(props: MiniGraphCardPropsPF) {
     super(props);
     this.state = {
-      isReady: false, isKebabOpen: false, isTimeOptionsOpen: false, graphData: props.dataSource.graphData
+      isReady: false,
+      isKebabOpen: false,
+      isTimeOptionsOpen: false,
+      graphData: props.dataSource.graphData
     };
   }
 

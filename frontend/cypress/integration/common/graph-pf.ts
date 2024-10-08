@@ -39,8 +39,9 @@ Then(
         const controller = state.graphRefs.getController() as Visualization;
         assert.isTrue(controller.hasGraph());
         const { nodes } = elems(controller);
-        const namespaceBoxes = nodes
-              .filter(node => node.getData()('isBox') === 'namespace' && node.getData()('namespace') === namespace);
+        const namespaceBoxes = nodes.filter(
+          node => node.getData()('isBox') === 'namespace' && node.getData()('namespace') === namespace
+        );
         assert.equal(namespaceBoxes.length, 2, 'Unexpected number of namespace boxes');
         assert.equal(namespaceBoxes.filter(node => node.getData()('cluster') === 'east').length, 1);
         assert.equal(namespaceBoxes.filter(node => node.getData()('cluster') === 'west').length, 1);
@@ -143,4 +144,3 @@ const elems = (c: Controller): { edges: Edge[]; nodes: Node[] } => {
     edges: elems.filter(e => isEdge(e)) as Edge[]
   };
 };
-
