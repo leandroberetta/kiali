@@ -80,20 +80,16 @@ When('user hides unhealthy workloads', () => {
 
 Then('user sees no unhealthy workloads on the patternfly graph', () => {
   cy.waitForReact();
-  cy.getReact('GraphPageComponent', { state: { isReady: true } })
-    .should('have.length', '1')
-    .then(() => {
-      cy.getReact('CytoscapeGraph')
-        .should('have.length', '1')
-        .getCurrentState()
-        .then(state => {
-          const noUnhealthy = state.cy
-            .nodes()
-            // Unhealthy boxes are fine.
-            .every((node: any) => node.data('healthStatus') !== 'Failure' || node.data('nodeType') === 'box');
-
-          expect(noUnhealthy).to.equal(true);
-        });
+  cy.getReact('GraphPagePFComponent', { state: { isReady: true } })
+    .should('have.length', 1)
+    .getCurrentState()
+    .then(state => {
+      const controller = state.graphRefs.getController() as Visualization;
+      assert.isTrue(controller.hasGraph());
+      const { nodes } = elems(controller);
+      const visibleNodes = nodes.filter(n => n.isVisible());
+      const noUnhealthyNodes = visibleNodes.every(node => node.getData().healthStatus !== 'Failure' || node.getData().nodeType === 'box');
+      assert.equal(noUnhealthyNodes, true, 'Unhealthy nodes are still visible');
     });
 });
 
@@ -117,19 +113,16 @@ When('user selects the preset hide option {string}', (option: string) => {
 
 Then('user sees no healthy workloads on the patternfly graph', () => {
   cy.waitForReact();
-  cy.getReact('GraphPageComponent', { state: { isReady: true } })
-    .should('have.length', '1')
-    .then(() => {
-      cy.getReact('CytoscapeGraph')
-        .should('have.length', '1')
-        .getCurrentState()
-        .then(state => {
-          const noHealthy = state.cy
-            .nodes()
-            .every((node: any) => node.data('healthStatus') !== 'Healthy' || node.data('nodeType') === 'box');
-
-          expect(noHealthy).to.equal(true);
-        });
+  cy.getReact('GraphPagePFComponent', { state: { isReady: true } })
+    .should('have.length', 1)
+    .getCurrentState()
+    .then(state => {
+      const controller = state.graphRefs.getController() as Visualization;
+      assert.isTrue(controller.hasGraph());
+      const { nodes } = elems(controller);
+      const visibleNodes = nodes.filter(n => n.isVisible());
+      const noUnhealthyNodes = visibleNodes.every(node => node.getData().healthStatus !== 'Healthy' || node.getData().nodeType === 'box');
+      assert.equal(noUnhealthyNodes, true, 'Unhealthy nodes are still visible');
     });
 });
 
