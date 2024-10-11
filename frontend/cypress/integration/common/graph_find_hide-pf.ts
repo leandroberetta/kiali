@@ -88,7 +88,9 @@ Then('user sees no unhealthy workloads on the patternfly graph', () => {
       assert.isTrue(controller.hasGraph());
       const { nodes } = elems(controller);
       const visibleNodes = nodes.filter(n => n.isVisible());
-      const noUnhealthyNodes = visibleNodes.every(node => node.getData().healthStatus !== 'Failure' || node.getData().nodeType === 'box');
+      const noUnhealthyNodes = visibleNodes.every(
+        node => node.getData().healthStatus !== 'Failure' || node.getData().nodeType === 'box'
+      );
       assert.equal(noUnhealthyNodes, true, 'Unhealthy nodes are still visible');
     });
 });
@@ -121,7 +123,9 @@ Then('user sees no healthy workloads on the patternfly graph', () => {
       assert.isTrue(controller.hasGraph());
       const { nodes } = elems(controller);
       const visibleNodes = nodes.filter(n => n.isVisible());
-      const noUnhealthyNodes = visibleNodes.every(node => node.getData().healthStatus !== 'Healthy' || node.getData().nodeType === 'box');
+      const noUnhealthyNodes = visibleNodes.every(
+        node => node.getData().healthStatus !== 'Healthy' || node.getData().nodeType === 'box'
+      );
       assert.equal(noUnhealthyNodes, true, 'Unhealthy nodes are still visible');
     });
 });
