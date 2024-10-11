@@ -4,7 +4,7 @@
 */
 
 import { Then } from '@badeball/cypress-cucumber-preprocessor';
-import { Controller, Edge, Visualization, Node, isNode, isEdge } from '@patternfly/react-topology';
+import { Controller, Edge, Node, isNode, isEdge, GraphElement, Visualization } from '@patternfly/react-topology';
 
 Then('user does not see a patternfly minigraph', () => {
   cy.get('#MiniGraphCard').find('h5').contains('Empty Graph');
@@ -138,11 +138,88 @@ export const nodeInfo = (nodeType: string, graphType: string): { isBox?: string;
   };
 };
 
-const elems = (c: Controller): { edges: Edge[]; nodes: Node[] } => {
+export const elems = (c: Controller): { edges: Edge[]; nodes: Node[] } => {
   const elems = c.getElements();
 
   return {
     nodes: elems.filter(e => isNode(e)) as Node[],
     edges: elems.filter(e => isEdge(e)) as Edge[]
   };
+};
+
+export type SelectOp =
+  | '='
+  | '!='
+  | '>'
+  | '<'
+  | '>='
+  | '<='
+  | '!*='
+  | '!$='
+  | '!^='
+  | '*='
+  | '$='
+  | '^='
+  | 'falsy'
+  | 'truthy';
+
+export type SelectExp = {
+  op?: SelectOp;
+  prop: string;
+  val?: any;
+};
+
+export type SelectAnd = SelectExp[];
+export type SelectOr = SelectAnd[];
+
+export const selectOr = (elems: GraphElement[], ors: SelectOr): GraphElement[] => {
+  let result = [] as GraphElement[];
+  ors.forEach(ands => {
+    const andResult = selectAnd(elems, ands);
+    result = Array.from(new Set([...result, ...andResult]));
+  });
+  return result;
+};
+
+export const selectAnd = (elems: GraphElement[], ands: SelectAnd): GraphElement[] => {
+  let result = elems;
+  ands.forEach(exp => (result = select(result, exp)));
+  return result;
+};
+
+export const select = (elems: GraphElement[], exp: SelectExp): GraphElement[] => {
+  return elems.filter(e => {
+    const propVal = e.getData()[exp.prop] || '';
+
+    switch (exp.op) {
+      case '!=':
+        return propVal !== exp.val;
+      case '<':
+        return propVal < exp.val;
+      case '>':
+        return propVal > exp.val;
+      case '>=':
+        return propVal >= exp.val;
+      case '<=':
+        return propVal <= exp.val;
+      case '!*=':
+        return !(propVal as string).includes(exp.val as string);
+      case '!$=':
+        return !(propVal as string).endsWith(exp.val as string);
+      case '!^=':
+        return !(propVal as string).startsWith(exp.val as string);
+      case '*=':
+        return (propVal as string).includes(exp.val as string);
+      case '$=':
+        return (propVal as string).endsWith(exp.val as string);
+      case '^=':
+        return (propVal as string).startsWith(exp.val as string);
+      case 'falsy':
+        return !propVal;
+      case 'truthy':
+        return !!propVal;
+      default:
+        return propVal === exp.val;
+    }
+  });
 };
