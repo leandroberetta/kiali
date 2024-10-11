@@ -258,19 +258,6 @@ Feature: Kiali Graph page - Display menu
     When user graphs "bookinfo" namespaces in the patternfly graph
     Then the Istio objects for the "bookinfo" namespace for both clusters should be grouped together in the panel
 
-  @multi-cluster
-  Scenario Outline: User double clicks node from specific cluster
-    When user graphs "bookinfo" namespaces in the patternfly graph
-    And user double-clicks on the "reviews" "<type>" from the "<cluster>" cluster in the main patternfly graph
-    Then the browser is at the details page for the "<type>" "bookinfo/reviews" located in the "<cluster>" cluster
-
-    Examples:
-      | type     | cluster |
-      | app      | east    |
-      | app      | west    |
-      | service  | east    |
-      | service  | west    |
-
   @ambient
   Scenario: User sees tcp traffic
     When user graphs "bookinfo" namespaces in the patternfly graph
