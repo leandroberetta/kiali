@@ -20,6 +20,7 @@ Feature: Kiali Graph page - Find/Hide
     When user finds unhealthy workloads
     Then user sees unhealthy workloads highlighted on the patternfly graph
 
+  @selected
   @error-rates-app
   Scenario: Hide unhealthy workloads
     When user hides unhealthy workloads
