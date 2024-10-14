@@ -1,4 +1,4 @@
-import { Given, Step, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { openTab } from './transition';
 import { clusterParameterExists } from './navigation';
 import { ensureKialiFinishedLoading } from './transition';
@@ -69,7 +69,7 @@ Then(
         const controller = state.graphRefs.getController() as Visualization;
         assert.isTrue(controller.hasGraph());
         const { nodes } = elems(controller);
-        const filteredNodes = nodes.filter(n => n.getData().cluster == cluster && n.getData().nodeType == type);
+        const filteredNodes = nodes.filter(n => n.getData().cluster === cluster && n.getData().nodeType === type);
         assert.isAbove(filteredNodes.length, 0, 'Unexpected number of nodes');
       });
   }
