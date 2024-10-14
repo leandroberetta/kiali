@@ -41,6 +41,7 @@ import { kebabToggleStyle } from 'styles/DropdownStyles';
 import { WorkloadWizardActionsDropdownGroup } from 'components/IstioWizards/WorkloadWizardActionsDropdownGroup';
 import { Workload } from 'types/Workload';
 import { GraphRefs } from './GraphPagePF';
+import { EmptyGraphLayout } from 'components/CytoscapeGraph/EmptyGraphLayout';
 
 type ReduxDispatchProps = {
   onReady: (controller: any) => void;
@@ -181,35 +182,42 @@ class MiniGraphCardPFComponent extends React.Component<MiniGraphCardPropsPF, Min
 
           <CardBody>
             <div style={{ height: '100%' }}>
-              <GraphPF
-                edgeLabels={this.props.dataSource.fetchParameters.edgeLabels}
-                edgeMode={EdgeMode.ALL}
-                graphData={{
-                  elements: this.state.graphData,
-                  elementsChanged: true,
-                  errorMessage: !!this.props.dataSource.errorMessage ? this.props.dataSource.errorMessage : undefined,
-                  isError: this.props.dataSource.isError,
-                  isLoading: this.props.dataSource.isLoading,
-                  fetchParams: this.props.dataSource.fetchParameters,
-                  timestamp: this.props.dataSource.graphTimestamp
-                }}
+              <EmptyGraphLayout
+                elements={this.state.graphData}
+                isLoading={this.props.dataSource.isLoading}
+                isError={this.props.dataSource.isError}
                 isMiniGraph={true}
-                layout={KialiDagreGraph.getLayout()}
-                onDeleteTrafficRouting={this.handleDeleteTrafficRouting}
-                onEdgeTap={this.handleEdgeTap}
-                onLaunchWizard={this.handleLaunchWizard}
-                onNodeTap={this.handleNodeTap}
-                onReady={this.handleReady}
-                setEdgeMode={this.props.setEdgeMode}
-                setLayout={this.props.setLayout}
-                setUpdateTime={this.props.setUpdateTime}
-                updateSummary={this.props.updateSummary}
-                showLegend={false}
-                showOutOfMesh={true}
-                showSecurity={true}
-                showTrafficAnimation={false}
-                showVirtualServices={true}
-              />
+              >
+                <GraphPF
+                  edgeLabels={this.props.dataSource.fetchParameters.edgeLabels}
+                  edgeMode={EdgeMode.ALL}
+                  graphData={{
+                    elements: this.state.graphData,
+                    elementsChanged: true,
+                    errorMessage: !!this.props.dataSource.errorMessage ? this.props.dataSource.errorMessage : undefined,
+                    isError: this.props.dataSource.isError,
+                    isLoading: this.props.dataSource.isLoading,
+                    fetchParams: this.props.dataSource.fetchParameters,
+                    timestamp: this.props.dataSource.graphTimestamp
+                  }}
+                  isMiniGraph={true}
+                  layout={KialiDagreGraph.getLayout()}
+                  onDeleteTrafficRouting={this.handleDeleteTrafficRouting}
+                  onEdgeTap={this.handleEdgeTap}
+                  onLaunchWizard={this.handleLaunchWizard}
+                  onNodeTap={this.handleNodeTap}
+                  onReady={this.props.onReady}
+                  setEdgeMode={this.props.setEdgeMode}
+                  setLayout={this.props.setLayout}
+                  setUpdateTime={this.props.setUpdateTime}
+                  updateSummary={this.props.updateSummary}
+                  showLegend={false}
+                  showOutOfMesh={true}
+                  showSecurity={true}
+                  showTrafficAnimation={false}
+                  showVirtualServices={true}
+                />
+              </EmptyGraphLayout>
             </div>
           </CardBody>
         </Card>

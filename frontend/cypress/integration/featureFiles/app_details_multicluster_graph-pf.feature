@@ -12,6 +12,7 @@ Feature: Kiali App Details page minigraph in multicluster setup
     And user is at the details page for the "app" "bookinfo/reviews" located in the "west" cluster
     And user sees "app" from a remote "west" cluster in the patternfly minigraph
 
+  @selected
   Scenario: Minigraph should not be visible for app, which is not deployed in specific cluster.
     Given user is at administrator perspective
     And user is at the details page for the "app" "bookinfo/details" located in the "west" cluster
