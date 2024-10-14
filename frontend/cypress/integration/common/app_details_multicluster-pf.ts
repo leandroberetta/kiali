@@ -2,7 +2,8 @@ import { Given, Step, Then, When } from '@badeball/cypress-cucumber-preprocessor
 import { openTab } from './transition';
 import { clusterParameterExists } from './navigation';
 import { ensureKialiFinishedLoading } from './transition';
-import { nodeInfo } from './graph-pf';
+import { elems, nodeInfo } from './graph-pf';
+import { Visualization } from '@patternfly/react-topology';
 
 Then('user sees details information for the remote {string} app', (name: string) => {
   cy.getBySel('app-description-card').within(() => {
@@ -61,12 +62,15 @@ Then(
   'user sees {string} from a remote {string} cluster in the patternfly minigraph',
   (type: string, cluster: string) => {
     cy.waitForReact();
-    cy.getReact('CytoscapeGraph')
-      .should('have.length', '1')
+    cy.getReact('MiniGraphCardPFComponent', { state: { isReady: true } })
+      .should('have.length', 1)
       .getCurrentState()
       .then(state => {
-        const apps = state.cy.nodes(`[cluster="${cluster}"][nodeType="${type}"][namespace="bookinfo"]`).length;
-        assert.isAbove(apps, 0);
+        const controller = state.graphRefs.getController() as Visualization;
+        assert.isTrue(controller.hasGraph());
+        const { nodes } = elems(controller);
+        const filteredNodes = nodes.filter(n => n.getData().cluster == cluster && n.getData().nodeType == type);
+        assert.isAbove(filteredNodes.length, 0, 'Unexpected number of nodes');
       });
   }
 );
@@ -84,7 +88,6 @@ Then('an info message {string} is displayed', (message: string) => {
 Given(
   'the {string} {string} from the {string} cluster is visible in the patternfly minigraph',
   (name: string, type: string, cluster: string) => {
-    Step(this, 'user sees a patternfly minigraph');
     cy.waitForReact();
     cy.getReact('CytoscapeGraph')
       .should('have.length', '1')
