@@ -107,7 +107,6 @@ Given(
                   node =>
                     node.getData().nodeType === nodeType &&
                     node.getData().namespace === 'bookinfo' &&
-                    node.getData().type === name &&
                     node.getData().cluster === cluster &&
                     node.getData().isBox === isBox
                 );
