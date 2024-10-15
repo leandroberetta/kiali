@@ -42,8 +42,8 @@ Then(
           assert.isTrue(node.getData().isInaccessible);
         });
       });
-    });
-});
+  }
+);
 
 Then(
   'user sees the {string} Istio Config objects and not the {string} Istio Config Objects',
