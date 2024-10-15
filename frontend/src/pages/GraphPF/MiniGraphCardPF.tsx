@@ -31,7 +31,6 @@ import { TimeDurationIndicator } from 'components/Time/TimeDurationIndicator';
 import { TimeDurationModal } from 'components/Time/TimeDurationModal';
 import { KialiDagreGraph } from 'components/CytoscapeGraph/graphs/KialiDagreGraph';
 import { KialiDispatch } from 'types/Redux';
-import { GraphThunkActions } from 'actions/GraphThunkActions';
 import { bindActionCreators } from 'redux';
 import { GraphActions } from 'actions/GraphActions';
 import { GraphSelectorBuilder } from 'pages/Graph/GraphSelector';
@@ -44,7 +43,6 @@ import { GraphRefs } from './GraphPagePF';
 import { EmptyGraphLayout } from 'components/CytoscapeGraph/EmptyGraphLayout';
 
 type ReduxDispatchProps = {
-  onReady: (controller: any) => void;
   setEdgeMode: (edgeMode: EdgeMode) => void;
   setLayout: (layout: Layout) => void;
   setUpdateTime: (val: TimeInMilliseconds) => void;
@@ -206,7 +204,7 @@ class MiniGraphCardPFComponent extends React.Component<MiniGraphCardPropsPF, Min
                   onEdgeTap={this.handleEdgeTap}
                   onLaunchWizard={this.handleLaunchWizard}
                   onNodeTap={this.handleNodeTap}
-                  onReady={this.props.onReady}
+                  onReady={this.handleReady}
                   setEdgeMode={this.props.setEdgeMode}
                   setLayout={this.props.setLayout}
                   setUpdateTime={this.props.setUpdateTime}
@@ -445,7 +443,6 @@ const mapStateToProps = (state: KialiAppState): { kiosk: string } => ({
 });
 
 const mapDispatchToProps = (dispatch: KialiDispatch): ReduxDispatchProps => ({
-  onReady: (controller: any) => dispatch(GraphThunkActions.graphPFReady(controller)),
   setEdgeMode: bindActionCreators(GraphActions.setEdgeMode, dispatch),
   setLayout: bindActionCreators(GraphActions.setLayout, dispatch),
   setUpdateTime: (val: TimeInMilliseconds) => dispatch(GraphActions.setUpdateTime(val)),
