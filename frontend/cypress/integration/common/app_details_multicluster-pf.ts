@@ -63,7 +63,7 @@ Then(
   (type: string, cluster: string) => {
     cy.waitForReact();
     cy.getReact('MiniGraphCardPFComponent', { state: { isReady: true } })
-      .should('have.length', 1)
+      .should('have.length', '1')
       .getCurrentState()
       .then(state => {
         const controller = state.graphRefs.getController() as Visualization;
@@ -90,7 +90,7 @@ Given(
   (name: string, type: string, cluster: string) => {
     cy.waitForReact();
     cy.getReact('MiniGraphCardPFComponent', { state: { isReady: true } })
-      .should('have.length', 1)
+      .should('have.length', '1')
       .then($graph => {
         cy.wrap($graph)
           .getProps()

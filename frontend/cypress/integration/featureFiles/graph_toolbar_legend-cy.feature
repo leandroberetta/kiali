@@ -128,14 +128,14 @@ Feature: Kiali Graph page - Graph toolbar and legend sidebar
   @error-rates-app
   Scenario: Show the Legend
     When the button "Show Legend" is clicked in the cytoscape graph
-    Then user can see the legend section in the cytoscape graph
+    Then user can see the legend section
     And the button "Show Legend" is active in the cytoscape graph
 
   @error-rates-app
   Scenario: Close the Legend using the button
     When the Legend section is visible in the cytoscape graph
     And the button "Show Legend" is clicked in the cytoscape graph
-    Then user cannot see the legend section in the cytoscape graph
+    Then user cannot see the legend section
     And the button "Show Legend" is not active in the cytoscape graph
 
   @error-rates-app

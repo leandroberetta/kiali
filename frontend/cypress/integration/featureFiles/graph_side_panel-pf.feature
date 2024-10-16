@@ -1,5 +1,4 @@
 @graph-side-panel
-@pft
 # don't change first line of this file - the tag is used for the test scripts to identify the test suite
 
 Feature: Kiali Graph page - Side panel menu actions
@@ -12,7 +11,7 @@ Feature: Kiali Graph page - Side panel menu actions
   @bookinfo-app
   Scenario: Actions in kebab menu of the side panel for a service node with existing traffic routing
     Given user graphs "bookinfo" namespaces in the patternfly graph
-    And user clicks the "productpage" "service" node in the patternfly graph
+    And user clicks the "productpage" "service" node
     And no cluster badge for the "graph side panel" should be visible
     And user opens the kebab menu of the graph side panel
     And user clicks the "delete_traffic_routing" item of the kebab menu of the graph side panel
@@ -21,7 +20,7 @@ Feature: Kiali Graph page - Side panel menu actions
   @bookinfo-app
   Scenario Outline: Ability to launch <action> wizard from graph side panel
     Given user graphs "bookinfo" namespaces in the patternfly graph
-    And user clicks the "reviews" "service" node in the patternfly graph
+    And user clicks the "reviews" "service" node
     And no cluster badge for the "graph side panel" should be visible
     And user opens the kebab menu of the graph side panel
     When user clicks the "<action>" item of the kebab menu of the graph side panel
@@ -40,7 +39,7 @@ Feature: Kiali Graph page - Side panel menu actions
   Scenario: Actions in kebab menu of the side panel for a service node with existing traffic routing
     Given user graphs "bookinfo" namespaces in the patternfly graph
     And there is traffic routing for the "ratings" service in the "bookinfo" namespace and in the "west" cluster
-    And user clicks the "ratings" service node in the "bookinfo" namespace in the "west" cluster in the patternfly graph
+    And user clicks the "ratings" service node in the "bookinfo" namespace in the "west" cluster
     And the side panel links should contain a "clusterName=west" parameter
     And "west" cluster badge for the graph side panel should be visible
     And user opens the kebab menu of the graph side panel
@@ -53,7 +52,7 @@ Feature: Kiali Graph page - Side panel menu actions
   @multi-cluster
   Scenario: Show Traces button contains clusterName param
     Given user graphs "bookinfo" namespaces in the patternfly graph
-    And user clicks the "productpage" "service" node in the patternfly graph
+    And user clicks the "productpage" "service" node
     And "east" cluster badge for the graph side panel should be visible
     And user clicks the "Traces" graph summary tab
     Then user should see "east" cluster parameter in links in the traces
@@ -62,7 +61,7 @@ Feature: Kiali Graph page - Side panel menu actions
   @tracing
   Scenario: Traces tab contains traces
     Given user graphs "bookinfo" namespaces in the patternfly graph
-    And user clicks the "productpage" "service" node in the patternfly graph
+    And user clicks the "productpage" "service" node
     And service badge for the graph side panel should be visible
     And user clicks the "Traces" graph summary tab
     Then user should see the traces tab not empty
@@ -70,7 +69,7 @@ Feature: Kiali Graph page - Side panel menu actions
   @bookinfo-app
   Scenario: Validate summary panel edge
     Given user graphs "bookinfo" namespaces in the patternfly graph
-    And user clicks the edge from "productpage" "app" to "details" "service" in the patternfly graph
+    And user clicks the edge from "productpage" "app" to "details" "service"
     And service badge for the graph side panel should be visible
     And app badge for the graph side panel should be visible
     And summary panel contains "Edge (HTTP)"
