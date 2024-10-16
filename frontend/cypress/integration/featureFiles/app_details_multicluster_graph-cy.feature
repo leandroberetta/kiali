@@ -16,11 +16,13 @@ Feature: Kiali App Details page minigraph in multicluster setup
 
   Scenario: Minigraph should not be visible for app, which is not deployed in specific cluster.
     Given user is at administrator perspective
+    And cytoscape graph is enabled
     And user is at the details page for the "app" "bookinfo/details" located in the "west" cluster
     Then user does not see a cytoscape minigraph
 
   Scenario Outline: User should be able to navigate through the graph to remotely located apps, services and workloads
     Given user is at administrator perspective
+    And cytoscape graph is enabled
     Given user is at the details page for the "app" "bookinfo/productpage" located in the "east" cluster
     And the "<name>" "<type>" from the "west" cluster is visible in the cytoscape minigraph
     When user clicks on the "<name>" "<type>" from the "west" cluster in the cytoscape minigraph
@@ -37,5 +39,6 @@ Feature: Kiali App Details page minigraph in multicluster setup
   @multi-primary
   Scenario: Remote nodes should be restricted if user does not have access rights to a remote namespace
     Given user is at limited user perspective
+    And cytoscape graph is enabled
     When user is at the details page for the "app" "bookinfo/productpage" located in the "east" cluster
     Then the nodes on the cytoscape minigraph located in the "west" cluster should be restricted
