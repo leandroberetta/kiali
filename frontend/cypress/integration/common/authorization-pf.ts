@@ -13,7 +13,7 @@ Then(`user see the {string} link`, link => {
 Then('the nodes on the graph located in the {string} cluster should be restricted', (cluster: string) => {
   cy.waitForReact();
   cy.getReact('GraphPagePFComponent', { state: { isReady: true } })
-    .should('have.length', 1)
+    .should('have.length', '1')
     .getCurrentState()
     .then(state => {
       const controller = state.graphRefs.getController() as Visualization;
@@ -29,7 +29,7 @@ Then('the nodes on the graph located in the {string} cluster should be restricte
 Then('the nodes on the minigraph located in the {string} cluster should be restricted', (cluster: string) => {
   cy.waitForReact();
   cy.getReact('MiniGraphCardPFComponent', { state: { isReady: true } })
-    .should('have.length', 1)
+    .should('have.length', '1')
     .getCurrentState()
     .then(state => {
       const controller = state.graphRefs.getController() as Visualization;

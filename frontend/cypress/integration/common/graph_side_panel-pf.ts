@@ -1,7 +1,7 @@
 import { Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { Visualization } from '@patternfly/react-topology';
 import { elems, selectAnd } from './graph-pf';
-import { EdgeAttr, NodeAttr } from 'types/Graph';
+import { NodeAttr } from 'types/Graph';
 
 When('user clicks the {string} {string} node', (svcName: string, nodeType: string) => {
   cy.waitForReact();
@@ -35,6 +35,7 @@ When(
       .then(state => {
         const controller = state.graphRefs.getController() as Visualization;
         assert.isTrue(controller.hasGraph());
+
         const { nodes, edges } = elems(controller);
 
         const node = selectAnd(nodes, [
@@ -48,8 +49,8 @@ When(
         ]);
 
         const edge = selectAnd(edges, [
-          { prop: EdgeAttr.sourcePrincipal, op: '=', val: node[0].getId() },
-          { prop: EdgeAttr.destPrincipal, op: '=', val: destNode[0].getId() }
+          { prop: 'source', op: '=', val: node[0].getId() },
+          { prop: 'target', op: '=', val: destNode[0].getId() }
         ]);
 
         const setSelectedIds = state.graphRefs.setSelectedIds as (values: string[]) => void;

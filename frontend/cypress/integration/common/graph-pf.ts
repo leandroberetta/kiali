@@ -13,7 +13,7 @@ Then('user does not see a patternfly minigraph', () => {
 Then('user sees a patternfly minigraph', () => {
   cy.waitForReact();
   cy.getReact('MiniGraphCardPFComponent', { state: { isReady: true } })
-    .should('have.length', 1)
+    .should('have.length', '1')
     .getCurrentState()
     .then(state => {
       const controller = state.graphRefs.getController() as Visualization;
