@@ -14,7 +14,7 @@ Feature: Kiali Graph page - Toolbar (various)
   # NOTE: Graph Replay has its own test script
 
   Scenario: On the graph page the namespace selector should be sorted alphabetically
-    When user graphs "" namespaces in the patternfly graph
+    When user graphs "" namespaces
     Then the namespace dropdown is sorted alphabetically
 
   @error-rates-app
@@ -117,7 +117,7 @@ Feature: Kiali Graph page - Toolbar (various)
 
   @ambient
   Scenario: Open traffic dropdown for ambient
-    When user graphs "" namespaces in the patternfly graph
+    When user graphs "" namespaces
     And user clicks graph traffic menu
     Then user sees "ambient" graph traffic menu
 

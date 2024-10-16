@@ -8,7 +8,7 @@ Feature: Kiali Graph page - Graph toolbar and legend sidebar
 
   Background:
     Given user is at administrator perspective
-    And user graphs "alpha,beta" namespaces in the patternfly graph
+    And user graphs "alpha,beta" namespaces
 
   @error-rates-app
   Scenario Outline: Check if the <id> button is usable

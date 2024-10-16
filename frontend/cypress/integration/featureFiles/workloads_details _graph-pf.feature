@@ -13,4 +13,4 @@ Feature: Kiali Workload Details page
 
   @bookinfo-app
   Scenario: See minigraph for workload.
-    Then user sees a patternfly minigraph
+    Then user sees a minigraph

@@ -10,7 +10,7 @@ Then(`user see the {string} link`, link => {
   cy.get('div[role="dialog"]').find(`#${link}`).should('exist');
 });
 
-Then('the nodes on the graph located in the {string} cluster should be restricted', (cluster: string) => {
+Then('the nodes located in the {string} cluster should be restricted', (cluster: string) => {
   cy.waitForReact();
   cy.getReact('GraphPagePFComponent', { state: { isReady: true } })
     .should('have.length', '1')

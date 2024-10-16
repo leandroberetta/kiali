@@ -11,4 +11,4 @@ Feature: Kiali App Details page
 
   @bookinfo-app
   Scenario: See app minigraph for details app.
-    Then user sees a patternfly minigraph
+    Then user sees a minigraph

@@ -13,5 +13,5 @@ Feature: Kiali Graph page - Display menu for non-admin users
   @multi-cluster
   @multi-primary
   Scenario: Remote nodes should be restricted if user does not have access rights to a remote namespace
-    When user graphs "bookinfo" namespaces in the patternfly graph
-    Then the nodes on the graph located in the "west" cluster should be restricted
+    When user graphs "bookinfo" namespaces
+    Then the nodes located in the "west" cluster should be restricted

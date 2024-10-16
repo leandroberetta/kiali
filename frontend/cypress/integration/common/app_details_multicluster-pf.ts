@@ -58,22 +58,19 @@ Then(
   }
 );
 
-Then(
-  'user sees {string} from a remote {string} cluster in the patternfly minigraph',
-  (type: string, cluster: string) => {
-    cy.waitForReact();
-    cy.getReact('MiniGraphCardPFComponent', { state: { isReady: true } })
-      .should('have.length', '1')
-      .getCurrentState()
-      .then(state => {
-        const controller = state.graphRefs.getController() as Visualization;
-        assert.isTrue(controller.hasGraph());
-        const { nodes } = elems(controller);
-        const filteredNodes = nodes.filter(n => n.getData().cluster === cluster && n.getData().nodeType === type);
-        assert.isAbove(filteredNodes.length, 0, 'Unexpected number of nodes');
-      });
-  }
-);
+Then('user sees {string} from a remote {string} cluster in the minigraph', (type: string, cluster: string) => {
+  cy.waitForReact();
+  cy.getReact('MiniGraphCardPFComponent', { state: { isReady: true } })
+    .should('have.length', '1')
+    .getCurrentState()
+    .then(state => {
+      const controller = state.graphRefs.getController() as Visualization;
+      assert.isTrue(controller.hasGraph());
+      const { nodes } = elems(controller);
+      const filteredNodes = nodes.filter(n => n.getData().cluster === cluster && n.getData().nodeType === type);
+      assert.isAbove(filteredNodes.length, 0, 'Unexpected number of nodes');
+    });
+});
 
 Then('user should see columns related to cluster info for the inbound and outbound traffic', () => {
   cy.get(`th[data-label="Cluster"]`).should('be.visible').and('have.length', 2);
@@ -86,7 +83,7 @@ Then('an info message {string} is displayed', (message: string) => {
 
 // And user clicks on the "reviews" <type> from the "west" cluster visible in the graph
 Given(
-  'the {string} {string} from the {string} cluster is visible in the patternfly minigraph',
+  'the {string} {string} from the {string} cluster is visible in the minigraph',
   (name: string, type: string, cluster: string) => {
     cy.waitForReact();
     cy.getReact('MiniGraphCardPFComponent', { state: { isReady: true } })
@@ -118,7 +115,7 @@ Given(
 );
 
 When(
-  'user clicks on the {string} {string} from the {string} cluster in the patternfly minigraph',
+  'user clicks on the {string} {string} from the {string} cluster in the minigraph',
   (name: string, type: string, cluster: string) => {
     cy.waitForReact();
     cy.getReact('CytoscapeGraph')

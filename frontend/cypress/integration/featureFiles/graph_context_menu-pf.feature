@@ -1,5 +1,4 @@
 @graph-context-menu
-@pft
 # don't change first line of this file - the tag is used for the test scripts to identify the test suite
 
 Feature: Kiali Graph page - Context menu actions
@@ -8,7 +7,7 @@ Feature: Kiali Graph page - Context menu actions
 
   Background:
     Given user is at administrator perspective
-    When user graphs "bookinfo" namespaces in the patternfly graph
+    When user graphs "bookinfo" namespaces
 
   @bookinfo-app
   Scenario: Actions in context menu for service node with existing traffic routing

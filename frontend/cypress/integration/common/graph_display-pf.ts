@@ -20,7 +20,7 @@ Before(() => {
   });
 });
 
-When('user graphs {string} namespaces in the patternfly graph', (namespaces: string) => {
+When('user graphs {string} namespaces', (namespaces: string) => {
   // Forcing "Pause" to not cause unhandled promises from the browser when cypress is testing
   cy.intercept(`**/api/namespaces/graph*`).as('graphNamespaces');
 
@@ -144,7 +144,7 @@ Then('the display menu has default settings', () => {
   });
 });
 
-Then('the patternfly graph reflects default settings', () => {
+Then('the graph reflects default settings', () => {
   cy.waitForReact();
   cy.getReact('GraphPagePFComponent', { state: { isReady: true } })
     .should('have.length', '1')
@@ -189,7 +189,7 @@ Then('the patternfly graph reflects default settings', () => {
     });
 });
 
-Then('user sees {string} edge labels in the patternfly graph', (el: string) => {
+Then('user sees {string} edge labels', (el: string) => {
   validateInput(el, 'appear');
 
   let rate: string;
@@ -222,7 +222,7 @@ Then('user sees {string} edge label option is closed', (edgeLabel: string) => {
   validateInput(edgeLabel, 'does not appear');
 });
 
-Then('user does not see {string} boxing in the patternfly graph', (boxByType: string) => {
+Then('user does not see {string} boxing', (boxByType: string) => {
   validateInput(`boxBy${boxByType}`, 'does not appear');
 
   cy.waitForReact();
@@ -246,7 +246,7 @@ Then('user does not see {string} boxing in the patternfly graph', (boxByType: st
 // minute depending on the duration used in the test.) In the future we could possibly
 // try to add something like this, but for now I am changing the test to just ensure
 // that non-idle edges don't disappear.
-Then('idle edges {string} in the patternfly graph', (action: string) => {
+Then('idle edges {string} in the graph', (action: string) => {
   validateInput('filterIdleEdges', action);
 
   cy.waitForReact();
@@ -272,7 +272,7 @@ Then('idle edges {string} in the patternfly graph', (action: string) => {
     });
 });
 
-Then('idle nodes {string} in the patternfly graph', (action: string) => {
+Then('idle nodes {string} in the graph', (action: string) => {
   validateInput('filterIdleNodes', action);
 
   cy.waitForReact();
@@ -294,7 +294,7 @@ Then('idle nodes {string} in the patternfly graph', (action: string) => {
     });
 });
 
-Then('ranks {string} in the patternfly graph', (action: string) => {
+Then('ranks {string} in the graph', (action: string) => {
   validateInput('rank', action);
 
   cy.waitForReact();
@@ -316,7 +316,7 @@ Then('ranks {string} in the patternfly graph', (action: string) => {
     });
 });
 
-Then('user does not see service nodes in the patternfly graph', () => {
+Then('user does not see service nodes', () => {
   validateInput('filterServiceNodes', 'do not appear');
 
   cy.waitForReact();
@@ -336,7 +336,7 @@ Then('user does not see service nodes in the patternfly graph', () => {
     });
 });
 
-Then('security {string} in the patternfly graph', (action: string) => {
+Then('security {string} in the graph', (action: string) => {
   validateInput('filterSecurity', action);
 
   cy.waitForReact();
@@ -394,7 +394,7 @@ Then('the {string} option should {string} and {string}', (option: string, option
     .and(`be.${checkState}`);
 });
 
-Then('only a single cluster box should be visible in the patternfly graph', () => {
+Then('only a single cluster box should be visible', () => {
   cy.waitForReact();
   cy.getReact('GraphPagePFComponent', { state: { graphData: { isLoading: false } } })
     .should('have.length', '1')
@@ -485,7 +485,7 @@ When('user {string} {string} traffic option', (action: string, option: string) =
   }
 });
 
-Then('{int} edges appear in the patternfly graph', (graphEdges: number) => {
+Then('{int} edges appear in the graph', (graphEdges: number) => {
   cy.waitForReact();
   cy.getReact('GraphPagePFComponent', { state: { graphData: { isLoading: false } } })
     .should('have.length', '1')

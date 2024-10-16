@@ -10,7 +10,7 @@ Feature: Kiali Graph page - Replay
 
   @error-rates-app
   Scenario: Graph alpha and beta namespaces
-    When user graphs "alpha,beta" namespaces in the patternfly graph
+    When user graphs "alpha,beta" namespaces
     Then user sees the "alpha" namespace
     And user sees the "beta" namespace
 
