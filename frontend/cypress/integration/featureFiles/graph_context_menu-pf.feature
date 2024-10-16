@@ -12,19 +12,19 @@ Feature: Kiali Graph page - Context menu actions
 
   @bookinfo-app
   Scenario: Actions in context menu for service node with existing traffic routing
-    And user opens the context menu of the "productpage" service node in the patternfly graph
-    And user should see no cluster parameter in the url when clicking the "Details" link in the context menu in the patternfly graph
-    And user opens the context menu of the "productpage" service node in the patternfly graph
-    And user should see no cluster parameter in the url when clicking the "Traffic" link in the context menu in the patternfly graph
-    And user opens the context menu of the "productpage" service node in the patternfly graph
-    And user should see no cluster parameter in the url when clicking the "Inbound Metrics" link in the context menu in the patternfly graph
+    And user opens the context menu of the "productpage" service node
+    And user should see no cluster parameter in the url when clicking the "Details" link in the context menu
+    And user opens the context menu of the "productpage" service node
+    And user should see no cluster parameter in the url when clicking the "Traffic" link in the context menu
+    And user opens the context menu of the "productpage" service node
+    And user should see no cluster parameter in the url when clicking the "Inbound Metrics" link in the context menu
 
   @multi-cluster
   Scenario: Actions in context menu for a service node with existing traffic routing
-    And user opens the context menu of the "details" service node on the "east" cluster in the patternfly graph
-    And user should see the "east" cluster parameter in the url when clicking the "Details" link in the context menu in the patternfly graph
-    And user opens the context menu of the "details" service node on the "east" cluster in the patternfly graph
-    And user should see the "east" cluster parameter in the url when clicking the "Traffic" link in the context menu in the patternfly graph
-    And user opens the context menu of the "details" service node on the "east" cluster in the patternfly graph
-    And user should see the "east" cluster parameter in the url when clicking the "Inbound Metrics" link in the context menu in the patternfly graph
-    And user opens the context menu of the "details" service node on the "east" cluster in the patternfly graph
+    And user opens the context menu of the "details" service node on the "east" cluster
+    And user should see the "east" cluster parameter in the url when clicking the "Details" link in the context menu
+    And user opens the context menu of the "details" service node on the "east" cluster
+    And user should see the "east" cluster parameter in the url when clicking the "Traffic" link in the context menu
+    And user opens the context menu of the "details" service node on the "east" cluster
+    And user should see the "east" cluster parameter in the url when clicking the "Inbound Metrics" link in the context menu
+    And user opens the context menu of the "details" service node on the "east" cluster
