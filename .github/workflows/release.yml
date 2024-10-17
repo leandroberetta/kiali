@@ -268,7 +268,7 @@ jobs:
       env:
         BUILD_TAG: kiali-release-${{ github.run_number }}-main
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      if: ${{ needs.initialize.outputs.release_type == 'minor' }}
+      if: ${{ needs.initialize.outputs.release_type == 'minor' || needs.initialize.outputs.release_type == 'major' }}
       run: |
         sed -i -r "s/^VERSION \?= (.*)/VERSION \?= $NEXT_VERSION-SNAPSHOT/" Makefile
 
