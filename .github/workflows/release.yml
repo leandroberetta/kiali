@@ -22,7 +22,7 @@ on:
       quay_repository:
         description: Quay repository    
         type: string
-        default: quay.io/kiali/kiali-operator
+        default: quay.io/kiali/kiali
         required: true
 
 jobs:
@@ -112,7 +112,6 @@ jobs:
         elif [[ $RELEASE_TYPE == "minor" ]]
         then
           RELEASE_VERSION=$RELEASE_VERSION
-        fi
         elif [[ $RELEASE_TYPE == "major" ]]
         then
           RELEASE_VERSION=$(python bump.py $RELEASE_TYPE $RELEASE_VERSION)
