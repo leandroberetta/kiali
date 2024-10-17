@@ -132,7 +132,6 @@ jobs:
         elif [[ $RELEASE_TYPE == "minor" ]]
         then
             NEXT_VERSION=$(python bump.py $RELEASE_TYPE $RELEASE_VERSION)
-        fi
         elif [[ $RELEASE_TYPE == "major" ]]
         then
             NEXT_VERSION=$(python bump.py $RELEASE_TYPE $RELEASE_VERSION)
