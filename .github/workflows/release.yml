@@ -134,7 +134,7 @@ jobs:
             NEXT_VERSION=$(python bump.py $RELEASE_TYPE $RELEASE_VERSION)
         elif [[ $RELEASE_TYPE == "major" ]]
         then
-            NEXT_VERSION=$(python bump.py "minor" $RELEASE_VERSION)
+            NEXT_VERSION=$(python bump.py "patch" $RELEASE_VERSION)
         fi
 
         echo "next_version=$NEXT_VERSION" >> $GITHUB_ENV
