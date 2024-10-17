@@ -87,12 +87,12 @@ jobs:
           DO_RELEASE=$(python minor.py)
           if [[ $DO_RELEASE == "1" ]]
           then
-            echo "release_type=minor" >> $GITHUB_OUTPUT
+            echo "release_type=minor" >> $GITHUB_ENV
           else
-            echo "release_type=skip" >> $GITHUB_OUTPUT
+            echo "release_type=skip" >> $GITHUB_ENV
           fi
         else
-          echo "release_type=${{ github.event.inputs.release_type }}" >> $GITHUB_OUTPUT
+          echo "release_type=${{ github.event.inputs.release_type }}" >> $GITHUB_ENV
         fi
 
     - name: Determine release version
