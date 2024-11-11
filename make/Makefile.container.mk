@@ -135,7 +135,7 @@ endif
 .ensure-buildx-builder: .ensure-docker-buildx
 	@if ! docker buildx inspect kiali-builder > /dev/null 2>&1; then \
 	  echo "The buildx builder instance named 'kiali-builder' does not exist. Creating one now."; \
-	  if ! docker buildx create --name=kiali-builder --driver-opt=image=moby/buildkit:v0.8.0; then \
+	  if ! docker buildx create --name=kiali-builder --driver-opt=image=moby/buildkit:v0.17.1; then \
 	    echo "Failed to create the buildx builder 'kiali-builder'"; \
 	    exit 1; \
 	  fi \
