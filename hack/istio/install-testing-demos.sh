@@ -212,7 +212,7 @@ EOF
   fi
 
   echo "Deploying loggers demo..."
-  "${SCRIPT_DIR}/install-loggers-demo.sh" -ab ${AMBIENT_ENABLED} -c ${CLIENT_EXE}
+  "${SCRIPT_DIR}/install-logger-demo.sh" -ab ${AMBIENT_ENABLED} -c ${CLIENT_EXE}
 
   if [[ -z "$GATEWAY_HOST" && "${USE_GATEWAY_API}" != "true" ]]; then
     # Assume that the '*' is used for hosts if the gateway host is not specified.
@@ -238,7 +238,7 @@ else
     echo "Deleting error rates demo ..."
     "${SCRIPT_DIR}/install-error-rates-demo.sh" --delete true
     echo "Deleting loggers demo..."
-    "${SCRIPT_DIR}/install-loggers-demo.sh" --delete true
+    "${SCRIPT_DIR}/install-logger-demo.sh" --delete true
   else
     echo "Deleting sleep demo ..."
     "${SCRIPT_DIR}/install-sleep-demo.sh" --delete-sleep true -c kubectl
@@ -247,6 +247,6 @@ else
     echo "Deleting error rates demo..."
     "${SCRIPT_DIR}/install-error-rates-demo.sh" --delete true -c kubectl
     echo "Deleting loggers demo..."
-    "${SCRIPT_DIR}/install-loggers-demo.sh" --delete true -c kubectl
+    "${SCRIPT_DIR}/install-logger-demo.sh" --delete true -c kubectl
   fi
 fi
