@@ -1,4 +1,5 @@
 {
+  "proxy": "http://localhost:20001",
   "name": "@kiali/kiali-ui",
   "version": "2.9.0",
   "description": "React UI for [Kiali](https://github.com/kiali/kiali).",
@@ -53,7 +54,7 @@
     "cypress:run:multi-cluster": "cypress run -e TAGS=\"@multi-cluster and not @multi-primary\"",
     "cypress:run:multi-primary": "cypress run -e TAGS=\"@multi-cluster and @multi-primary\"",
     "cypress:run:perf": "cypress run --config-file cypress-perf.config.ts",
-    "cypress:run:selected": "cypress run -e TAGS=\"@selected\"",
+    "cypress:run:selected": "cypress run --browser chrome -e TAGS=\"@selected\"",
     "cypress:run:smoke": "cypress run -e TAGS=\"@smoke\"",
     "cypress:run:test-group:junit": "cypress run --reporter cypress-multi-reporters --reporter-options configFile=reporter-config.json -e TAGS=\"${TEST_GROUP}\"",
     "cypress:run:tracing": "cypress run -e TAGS=\"@tracing\"",
@@ -135,7 +136,7 @@
     "@types/react-virtualized": "9.x",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.6.7",
     "axios-mock-adapter": "^1.22.0",
-    "cypress": "^13.6.1",
+    "cypress": "^14.2",
     "cypress-multi-reporters": "^1.6.0",
     "cypress-react-selector": "^3.0.0",
     "enzyme": "3.11.0",
