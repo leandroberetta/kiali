@@ -93,7 +93,11 @@ jobs:
         echo "ISTIO_VERSION=${ISTIO_VERSION}" >> $GITHUB_ENV
     - name: Run molecule tests
       id: run-molecule-tests
-      env: KIALI_OPERATOR_FORK=leandroberetta/kiali-operator KIALI_OPERATOR_BRANCH=molecule-failure KIALI_FORK=leandroberetta/kiali KIALI_BRANCH=molecule-failure
+      env:
+        KIALI_OPERATOR_FORK: leandroberetta/kiali-operator
+        KIALI_OPERATOR_BRANCH: molecule-failure
+        KIALI_FORK: leandroberetta/kiali
+        KIALI_BRANCH: molecule-failure
       run: |
         ISTIO_VERSION="${{ env.ISTIO_VERSION }}"
         if [ -z "${ISTIO_VERSION}" ]; then
