@@ -109,7 +109,7 @@ jobs:
         echo "================================================================"
         echo
         if ! ./hack/ci-kind-molecule-tests.sh --istio-version ${ISTIO_VERSION} --client-exe $(which kubectl) --kind-exe $(which kind) --all-tests "${{ inputs.all_tests }}" --git-clone-protocol https --irc-room "" --upload-logs false --rebuild-cluster true -ci true --operator-installer helm --olm-enabled false; then
-          exit $?
+          exit 1
         fi
         echo
         echo "================================================================"
@@ -117,5 +117,5 @@ jobs:
         echo "================================================================"
         echo
         if ! ./hack/ci-kind-molecule-tests.sh --istio-version ${ISTIO_VERSION} --client-exe $(which kubectl) --kind-exe $(which kind) --all-tests "${{ inputs.all_tests }}" --git-clone-protocol https --irc-room "" --upload-logs false --rebuild-cluster false -ci true --operator-installer skip --olm-enabled true --olm-version "${{ inputs.olm_version }}"; then
-          exit $?
+          exit 1
         fi
