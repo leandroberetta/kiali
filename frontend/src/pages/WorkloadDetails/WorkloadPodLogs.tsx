@@ -17,6 +17,7 @@ import {
   MenuGroup,
   MenuToggle,
   MenuToggleElement,
+  Modal,
   TextInput,
   Toolbar,
   ToolbarGroup,
@@ -60,6 +61,7 @@ import { TraceSpansLimit } from 'components/Metrics/TraceSpansLimit';
 import { infoStyle } from 'styles/IconStyle';
 import { WaypointInfo } from '../../types/Workload';
 import { istioProxyName } from './WorkloadDetailsPage';
+import ReactJson from 'react-json-view';
 
 const appContainerColors = [PFColors.Blue200, PFColors.Blue300, PFColors.Blue400, PFColors.Blue100];
 const proxyContainerColor = PFColors.Gold300;
@@ -105,7 +107,9 @@ interface WorkloadPodLogsState {
   fullscreen: boolean;
   hideError?: string;
   hideLogValue: string;
+  isJSONModalOpen: boolean;
   isTimeOptionsOpen: boolean;
+  jsonModalContent: string | undefined;
   kebabOpen: boolean;
   linesTruncatedContainers: string[];
   loadingLogs: boolean;
@@ -150,6 +154,26 @@ const MaxLinesOptions = {
   '10000': '10000 lines',
   '25000': '25000 lines'
 };
+
+const modalStyle = kialiStyle({
+  height: '70%',
+  width: '50%',
+  overflow: 'auto',
+  overflowY: 'hidden'
+});
+
+const previewLogLineStyle = kialiStyle({
+  fontFamily: 'monospace',
+  fontSize: 'var(--kiali-global--font-size)',
+  backgroundColor: PFColors.Black1000,
+  color: PFColors.Blue200,
+  marginBottom: '1rem',
+  overflowX: 'auto',
+  overflowY: 'hidden',
+  whiteSpace: 'nowrap',
+  resize: 'none',
+  padding: '0.75rem'
+});
 
 const alInfoIcon = kialiStyle({
   display: 'flex',
@@ -294,7 +318,9 @@ export class WorkloadPodLogsComponent extends React.Component<WorkloadPodLogsPro
       showZtunnel: showZtunnel === 'true',
       showTimestamps: false,
       showToolbar: true,
-      useRegex: false
+      useRegex: false,
+      isJSONModalOpen: false,
+      jsonModalContent: undefined
     };
 
     if (this.props.pods.length < 1) {
@@ -506,6 +532,23 @@ export class WorkloadPodLogsComponent extends React.Component<WorkloadPodLogsPro
                     )}
                     {this.getLogsDiv()}
                     {this.getAccessLogModals()}
+                    <Modal
+                      className={modalStyle}
+                      disableFocusTrap={true}
+                      title="JSON Log Details"
+                      isOpen={this.state.isJSONModalOpen}
+                      onClose={this.closeJSONModal}
+                    >
+                      <p className={previewLogLineStyle}>{this.state.jsonModalContent}</p>
+                      <ReactJson
+                        src={this.state.jsonModalContent ? JSON.parse(this.state.jsonModalContent) : null}
+                        name={false}
+                        collapsed={false}
+                        displayDataTypes={false}
+                        enableClipboard={false}
+                        style={{ fontSize: '0.85rem', backgroundColor: '#f5f5f5' }}
+                      />
+                    </Modal>
                   </CardBody>
                 </Card>
               </GridItem>
@@ -706,6 +749,25 @@ export class WorkloadPodLogsComponent extends React.Component<WorkloadPodLogsPro
 
     return !le.accessLog ? (
       <div key={`le-d-${index}`} className={logLineStyle} style={{ ...style }}>
+        {this.isJSON(e) && (
+          <>
+            <Tooltip
+              key={`jod-tt-${index}`}
+              position={TooltipPosition.auto}
+              entryDelay={1000}
+              content="Click for JSON object details"
+            >
+              <Button
+                key={`jod-b-${index}`}
+                variant={ButtonVariant.plain}
+                className={logInfoStyle}
+                onClick={() => this.openJSONModal(e)}
+              >
+                <KialiIcon.Info key={`jod-i-${index}`} className={alInfoIcon} color={messageColor} />
+              </Button>
+            </Tooltip>
+          </>
+        )}
         <p key={`le-${index}`} className={logMessageStyle} style={{ color: messageColor }}>
           {this.entryToString(e)}
         </p>
@@ -1360,6 +1422,33 @@ export class WorkloadPodLogsComponent extends React.Component<WorkloadPodLogsPro
 
     const { duration, operationName } = entry.span!;
     return `duration: ${formatDuration(duration)}, operationName: ${operationName}`;
+  };
+
+  private entryToJSON = (entry: Entry): string | undefined => {
+    if (entry.logEntry) {
+      return JSON.stringify(JSON.parse(entry.logEntry.message), null, 2);
+    }
+    return undefined;
+  };
+
+  private isJSON = (entry: Entry): boolean => {
+    try {
+      if (entry.logEntry) {
+        const parsed = JSON.parse(entry.logEntry.message);
+        return typeof parsed === 'object' && parsed !== null;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  openJSONModal = (jsonEntry: Entry): void => {
+    this.setState({ isJSONModalOpen: true, jsonModalContent: this.entryToJSON(jsonEntry) });
+  };
+
+  closeJSONModal = (): void => {
+    this.setState({ isJSONModalOpen: false, jsonModalContent: undefined });
   };
 
   private hasEntries = (entries: Entry[]): boolean => !!entries && entries.length > 0;
